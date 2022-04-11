@@ -1,0 +1,13 @@
+name: "app_0"
+jobs:
+  - name: "harris"
+    pe: 152
+    mem: 15
+    input: 1
+    output: 1
+
+  - name: "resnet_layer"
+    pe: 128
+    mem: 0
+    input: 2
+    output: 1

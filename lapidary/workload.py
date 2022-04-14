@@ -1,16 +1,19 @@
 import os
 import yaml
+from typing import Optional
 from lapidary.task import Task
 
 
 class Workload:
-    def __init__(self) -> None:
+    def __init__(self, config_file: Optional[str] = None) -> None:
         self.name = 'workload_0'
         self.num_tasks = 0
         self.type = 'once'
         self.tasks = []
+        if config_file is not None:
+            self.set_workload(config_file)
 
-    def read_config_file(self, config_file: str) -> None:
+    def set_workload(self, config_file: str) -> None:
         if not os.path.exists(config_file):
             print("[ERROR] Workload config file not found")
             exit()

@@ -1,9 +1,9 @@
 name: amber_8x16x4
-architecture:
-  num_glb_banks: 32
-  num_pr: 16
-  pr:
-    height: 16
-    width: 4
-    num_input: 4
-    num_output: 4
+num_glb_banks: 32
+num_pr: 16
+pr_flexible: False
+pr:
+  height: 16
+  width: 4
+  num_input: 4
+  num_output: 4

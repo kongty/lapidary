@@ -1,17 +1,24 @@
-from lapidary.config import Config
-import os
+from lapidary.architecture import Architecture
+from lapidary.workload import Workload
+from lapidary.simulator import Simulator
 
 
 class Lapidary:
-    def __init__(self, config=''):
-        if not os.path.exists(config):
-            print("[ERROR] Config file not found")
-            exit()
-        else:
-            self.config_file = config
-            self.config = Config()
-            print(f"[LOG] Config file read: {self.config_file}")
-            self.config.read_config_file(self.config_file)
+    def __init__(self, architecture_filename: str = None, workload_filename: str = None) -> None:
+        self.architecture = Architecture()
+        self.workload = Workload()
+        if architecture_filename is not None:
+            self.set_architecture(architecture_filename)
+        if workload_filename is not None:
+            self.set_workload(workload_filename)
 
-    def run(self):
-        self.config.print_config()
+        self.simulator = Simulator(self.architecture, self.workload)
+
+    def set_architecture(self, architecture_filename: str) -> None:
+        self.architecture.read_config_file(architecture_filename)
+
+    def set_workload(self, workload_filename: str) -> None:
+        self.workload.read_config_file(workload_filename)
+
+    def run(self) -> None:
+        print(self.simulator.workload.name)

@@ -1,7 +1,7 @@
 from typing import Optional
 
 
-class TaskConfig:
+class TaskGeneratorConfig:
     def __init__(self, config_dict: Optional[dict]) -> None:
         self.name = 'app_0'
         self.pe = 0

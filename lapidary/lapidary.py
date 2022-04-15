@@ -16,7 +16,7 @@ class Lapidary:
         self.workload = Workload(self.env, workload_filename)
         self.hardware = Hardware(self.env, self.architecture)
         self.scheduler = Scheduler(self.env)
-        self.simulator = Simulator(self.env, self.hardware, self.workload)
+        self.simulator = Simulator(self.env, self.hardware, self.workload, self.scheduler)
 
     def set_architecture(self, architecture_filename: str) -> None:
         self.architecture = Architecture(architecture_filename)

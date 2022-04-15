@@ -31,5 +31,6 @@ class Workload:
             self.task_generators.append(TaskGenerator(self.env, task_config))
 
     def dispatch(self):
+        """Return list of tasks arrived."""
         for task_gen in self.task_generators:
             if 

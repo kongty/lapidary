@@ -28,9 +28,9 @@ class Task:
     def arrive(self) -> None:
         if self.config.dist == "manual":
             yield self.env.timeout(self.arrival_interval[self.task_id])
-            print (f"{self.config.name} #{self.task_id} arrived @ {self.env.now}")
+            print(f"{self.config.name} #{self.task_id} arrived @ {self.env.now}")
         elif self.config.dist == "poisson":
             while True:
                 yield self.env.timeout(self.arrival_interval[self.task_id])
-                print (f"{self.config.name} #{self.task_id} arrived @ {self.env.now}")
+                print(f"{self.config.name} #{self.task_id} arrived @ {self.env.now}")
                 self.task_id += 1

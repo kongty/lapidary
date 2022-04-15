@@ -28,7 +28,7 @@ class Workload:
             task_config = TaskConfig(task_config_dict)
             self.tasks.append(Task(self.env, task_config))
 
-    def dispatch(self):
-        # TODO:
+    def task_arrive(self):
+        yield env.
         # Use | expression of task arrive proccess
         pass

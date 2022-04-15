@@ -11,4 +11,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     lapidary = Lapidary(architecture_filename=args.arch, workload_filename=args.workload)
-    lapidary.run()
+    lapidary.run(until=300)

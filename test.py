@@ -1,5 +1,7 @@
 import argparse
 from lapidary.lapidary import Lapidary
+import numpy as np
+np.random.seed(10)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CGRA simulation")
@@ -11,4 +13,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     lapidary = Lapidary(architecture_filename=args.arch, workload_filename=args.workload)
-    lapidary.run(until=300)
+    lapidary.run(until=500)

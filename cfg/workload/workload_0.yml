@@ -6,18 +6,7 @@ tasks:
     mem: 15
     input: 1
     output: 1
-    runtime: 10 # Can be random number in a range
-    dist: "poisson"
-    dist_start: 0 # Can be random number in a range
-    dist_size: 1000
-    dist_lam: 100
-  - name: "task_1"
-    app: "app_1"
-    pe: 152
-    mem: 15
-    input: 1
-    output: 1
     runtime: 50 # Can be random number in a range
     dist: "manual"
     dist_start: 0 # Can be random number in a range
-    dist_interval: [200]
+    dist_interval: [200, 200]

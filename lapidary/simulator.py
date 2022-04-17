@@ -12,5 +12,7 @@ class Simulator:
         self.scheduler = scheduler
 
     def run(self, until: int) -> None:
-        # self.workload.start()
+        self.workload.run_dispatch(self.scheduler.task_queue)
+        self.scheduler.run(self.hardware)
+
         self.env.run(until=until)

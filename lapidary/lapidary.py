@@ -3,7 +3,7 @@ from typing import Optional
 from lapidary.architecture import Architecture
 from lapidary.hardware import Hardware
 from lapidary.workload import Workload
-from lapidary.scheduler import Scheduler
+from lapidary.scheduler import GreedyScheduler
 from lapidary.simulator import Simulator
 
 
@@ -15,7 +15,7 @@ class Lapidary:
         self.architecture = Architecture(architecture_filename)
         self.workload = Workload(self.env, workload_filename)
         self.hardware = Hardware(self.env, self.architecture)
-        self.scheduler = Scheduler(self.env)
+        self.scheduler = GreedyScheduler(self.env)
         self.simulator = Simulator(self.env, self.hardware, self.workload, self.scheduler)
 
     def set_architecture(self, architecture_filename: str) -> None:

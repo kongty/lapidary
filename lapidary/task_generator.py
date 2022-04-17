@@ -3,46 +3,43 @@ import numpy as np
 from typing import List
 from lapidary.task import Task
 from lapidary.task_generator_config import TaskGeneratorConfig
+from lapidary.task_queue import TaskQueue
 
 
 class TaskGenerator:
     def __init__(self, env: simpy.Environment, config: TaskGeneratorConfig) -> None:
         self.env = env
-        self.task_id = 0
         self.done = False
         self.config = config
-        self.arrival_interval = self._generate_arrival_interval()
+        self.intervals = self._generate_intervals()
 
-    def _generate_arrival_interval(self) -> List[int]:
+    def _generate_intervals(self) -> List[int]:
         if self.config.dist == "manual":
-            dist = self.config.dist_interval
-            if len(dist) == 0:
+            dist_interval = self.config.dist_interval
+            if len(dist_interval) == 0:
                 self.done = True
             else:
-                dist[0] += self.config.dist_start
-            return dist
+                dist_interval[0] += self.config.dist_start
+            return dist_interval
         elif self.config.dist == "poisson":
-            dist = list(np.random.poisson(self.config.dist_lam, self.config.dist_size))
-            if len(dist) == 0:
+            dist_interval = list(np.random.poisson(self.config.dist_lam, self.config.dist_size))
+            if len(dist_interval) == 0:
                 self.done = True
             else:
-                dist[0] += self.config.dist_start
-            return dist
+                dist_interval[0] += self.config.dist_start
+            return dist_interval
         else:
             error = f"The distribution '{self.config.dist}' is not supported. ['manual', 'poission']"
             raise Exception(error)
 
-    def arrive(self) -> None:
-        if self.config.dist == "manual":
-            yield self.env.timeout(self.arrival_interval[self.task_id])
-            print(f"{self.config.name} #{self.task_id} arrived @ {self.env.now}")
-        elif self.config.dist == "poisson":
-            yield self.env.timeout(self.arrival_interval[self.task_id])
-            print(f"{self.config.name} #{self.task_id} arrived @ {self.env.now}")
+    def generate(self, task_queue: TaskQueue) -> None:
+        for task_id, interval in enumerate(self.intervals):
+            self.evt_generate = self.env.event()
+            yield self.env.timeout(interval)
 
-        task = Task(self.task_id)
-        task.ts_arrival = self.env.now
+            task = Task(self.env, task_id, self.config)
+            task.ts_arrive = self.env.now
+            self.evt_generate.succeed(value=task)
+            print(f"{task.name} arrived @ {self.env.now}")
 
-        self.task_id += 1
-
-        return task
+            task_queue.put(task)

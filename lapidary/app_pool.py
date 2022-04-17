@@ -3,7 +3,8 @@ from collections import defaultdict
 
 
 class AppPool:
-    def __init__(self) -> None:
+    def __init__(self, name: str) -> None:
+        self.name = name
         self.app_pool = defaultdict(list)
 
     def add(self, app: str, app_config: AppConfig) -> None:

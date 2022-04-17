@@ -2,11 +2,6 @@ name: "workload_0"
 tasks:
   - name: "task_0"
     app: "app_0"
-    pe: 152
-    mem: 15
-    input: 1
-    output: 1
-    runtime: 50 # Can be random number in a range
     dist: "manual"
     dist_start: 0 # Can be random number in a range
     dist_interval: [200, 200]

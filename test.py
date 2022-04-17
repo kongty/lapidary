@@ -1,5 +1,7 @@
 import argparse
+from lapidary.app_config import AppConfig
 from lapidary.lapidary import Lapidary
+from lapidary.app_pool import AppPool
 import numpy as np
 np.random.seed(10)
 
@@ -12,5 +14,8 @@ if __name__ == "__main__":
     parser.add_argument("--log-dir", metavar="log dir", type=str, default="./logs", help="Path to log directory")
     args = parser.parse_args()
 
-    lapidary = Lapidary(architecture_filename=args.arch, workload_filename=args.workload)
+    app_pool = AppPool("app_pool_0")
+    app_pool.add("app_0", AppConfig(pe=150, mem=15, input=1, output=1, runtime=50))
+
+    lapidary = Lapidary(architecture_filename=args.arch, workload_filename=args.workload, app_pool=app_pool)
     lapidary.run(until=500)

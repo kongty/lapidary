@@ -1,5 +1,6 @@
 import simpy
 from typing import Optional
+from lapidary.app_pool import AppPool
 from lapidary.architecture import Architecture
 from lapidary.hardware import Hardware
 from lapidary.workload import Workload
@@ -8,7 +9,7 @@ from lapidary.simulator import Simulator
 
 
 class Lapidary:
-    def __init__(self, architecture_filename: Optional[str] = None, workload_filename: Optional[str] = None) -> None:
+    def __init__(self, architecture_filename: str, workload_filename: str, app_pool: AppPool) -> None:
         # simpy environment
         self.env = simpy.Environment()
 
@@ -16,7 +17,8 @@ class Lapidary:
         self.workload = Workload(self.env, workload_filename)
         self.hardware = Hardware(self.env, self.architecture)
         self.scheduler = GreedyScheduler(self.env)
-        self.simulator = Simulator(self.env, self.hardware, self.workload, self.scheduler)
+        self.app_pool = app_pool
+        self.simulator = Simulator(self.env, self.hardware, self.workload, self.scheduler, self.app_pool)
 
     def set_architecture(self, architecture_filename: str) -> None:
         self.architecture = Architecture(architecture_filename)

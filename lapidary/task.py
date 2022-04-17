@@ -7,7 +7,7 @@ class Task:
         self.env = env
         self.id = id
         self.config = config
-        self.name = self.config.name + "_" + str(self.id)
+        self.name = self.config.name + "_#" + str(self.id)
         self.ts_arrive = 0
         self.ts_schedule = 0
         self.ts_done = 0

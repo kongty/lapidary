@@ -46,5 +46,7 @@ class GreedyScheduler(Scheduler):
             # TODO: Optimize by choosing the best bitstream from the app_pool.
             # For now, we just use the first app_config from the app_pool.
             app_config = task_app_config_list[0]
-            # lb_point, rt_point = accelerator.get_max_rectangle_prs()
-            accelerator.execute(task, app_config, None)
+            task.set_app_config(app_config)
+
+            lb_point, rt_point = accelerator.get_max_rectangle_prs()
+            accelerator.execute(task, None)

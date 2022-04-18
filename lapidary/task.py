@@ -1,4 +1,5 @@
 import simpy
+from lapidary.app_config import AppConfig
 
 
 class Task:
@@ -12,8 +13,11 @@ class Task:
         self.ts_schedule = 0
         self.ts_done = 0
 
-    def proc_execute(self, runtime: int) -> None:
+    def set_app_config(self, app_config: AppConfig) -> None:
+        self.app_config = app_config
+
+    def proc_execute(self) -> None:
         print(f"{self.name} execution starts @ {self.env.now}.")
-        yield self.env.timeout(runtime)
+        yield self.env.timeout(self.app_config.runtime)
         print(f"{self.name} execution finishes @ {self.env.now}.")
         self.ts_done = self.env.now

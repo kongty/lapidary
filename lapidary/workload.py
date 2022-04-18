@@ -2,7 +2,6 @@ import os
 import yaml
 import simpy
 from typing import Optional
-from lapidary.task_generator_config import TaskGeneratorConfig
 from lapidary.task_generator import TaskGenerator
 from lapidary.task_queue import TaskQueue
 
@@ -27,9 +26,8 @@ class Workload:
 
         self.name = config['name']
         for task_config_dict in config["tasks"]:
-            task_config = TaskGeneratorConfig(task_config_dict)
-            self.task_generators.append(TaskGenerator(self.env, task_config))
+            self.task_generators.append(TaskGenerator(self.env, task_config_dict))
 
     def run_dispatch(self, task_queue: TaskQueue):
         for task_generator in self.task_generators:
-            self.env.process(task_generator.generate(task_queue))
+            self.env.process(task_generator.proc_generate(task_queue))

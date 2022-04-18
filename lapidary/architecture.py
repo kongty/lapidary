@@ -7,12 +7,15 @@ class Architecture:
     def __init__(self, config_file: Optional[str] = None) -> None:
         self.name = 'amber'
         self.num_glb_banks = 32
-        self.num_pr = 8
+        self.num_pr_height = 1
+        self.num_pr_width = 8
         self.pr_flexible = False
+
         self.pr_height = 16
         self.pr_width = 4
         self.pr_num_input = 4
         self.pr_num_output = 4
+
         if config_file is not None:
             self.set_architecture(config_file)
         else:
@@ -29,7 +32,8 @@ class Architecture:
 
         self.name = config_dict['name']
         self.num_glb_banks = config_dict['num_glb_banks']
-        self.num_pr = config_dict['num_pr']
+        self.num_pr_height = config_dict['num_pr_height']
+        self.num_pr_width = config_dict['num_pr_width']
         self.pr_flexible = config_dict['pr_flexible']
         self.pr_height = config_dict['pr']['height']
         self.pr_width = config_dict['pr']['width']

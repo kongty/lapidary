@@ -5,3 +5,9 @@ tasks:
     dist: "manual"
     dist_start: 0 # Can be random number in a range
     dist_interval: [200, 200]
+
+  - name: "task_1"
+    app: "app_0"
+    dist: "manual"
+    dist_start: 0 # Can be random number in a range
+    dist_interval: [200, 200]

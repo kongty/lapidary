@@ -1,5 +1,5 @@
 import simpy
-from lapidary.app_config import AppConfig
+from lapidary.app import AppConfig
 from typing import Tuple
 
 

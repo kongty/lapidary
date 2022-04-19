@@ -1,6 +1,16 @@
-from lapidary.app_config import AppConfig
-from typing import List
+from typing import List, Tuple
 from collections import defaultdict
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class AppConfig:
+    pr_shape: Tuple[int, int]
+    pe: int
+    mem: int
+    input: int
+    output: int
+    runtime: int
 
 
 class AppPool:

@@ -1,16 +1,54 @@
-from asyncio import Task
-from lapidary.architecture import Architecture
-import simpy
-from typing import List, Tuple
-from functools import reduce
 import numpy as np
+import yaml
+import os
+import simpy
+from typing import List, Tuple, Optional, Union, Dict
+from functools import reduce
 from lapidary.components import PartialRegion, Bank, DramController
+from lapidary.task import Task
+
+
+class AcceleratorConfig:
+    def __init__(self, config: Optional[Union[str, Dict]] = None) -> None:
+        self.name = 'amber'
+        self.num_glb_banks = 32
+        self.num_pr_height = 1
+        self.num_pr_width = 8
+        self.pr_flexible = False
+
+        self.pr_height = 16
+        self.pr_width = 4
+        self.pr_num_input = 4
+        self.pr_num_output = 4
+
+        if config is not None:
+            self.set_config(config)
+
+    def set_config(self, config: Union[str, Dict]) -> None:
+        """Set architecture properties with input configuration file."""
+        if type(config) is str:
+            if not os.path.exists(config):
+                raise Exception("[ERROR] Architecture config file not found")
+            else:
+                print(f"[LOG] Architecture config file read: {config}")
+            with open(config, 'r') as f:
+                config = yaml.load(f, Loader=yaml.SafeLoader)
+
+        self.name = config['name']
+        self.num_glb_banks = config['num_glb_banks']
+        self.num_pr_height = config['num_pr_height']
+        self.num_pr_width = config['num_pr_width']
+        self.pr_flexible = config['pr_flexible']
+        self.pr_height = config['pr']['height']
+        self.pr_width = config['pr']['width']
+        self.pr_num_input = config['pr']['num_input']
+        self.pr_num_output = config['pr']['num_output']
 
 
 class Accelerator:
-    def __init__(self, env: simpy.Environment, architecture: Architecture) -> None:
+    def __init__(self, env: simpy.Environment, config: Optional[Union[str, Dict]]) -> None:
         self.env = env
-        self.architecture = architecture
+        self.config = AcceleratorConfig(config)
         self.prs = self._generate_prs()
         self.banks = self._generate_banks()
         self.dram_controller = self._generate_dram_controller()
@@ -23,16 +61,16 @@ class Accelerator:
 
     def _generate_prs(self) -> List[List[PartialRegion]]:
         """Return 2d-list of partial regions."""
-        prs = [[None] * self.architecture.num_pr_width] * self.architecture.num_pr_height
-        for y in range(self.architecture.num_pr_height):
-            for x in range(self.architecture.num_pr_width):
+        prs = [[None] * self.config.num_pr_width] * self.config.num_pr_height
+        for y in range(self.config.num_pr_height):
+            for x in range(self.config.num_pr_width):
                 prs[y][x] = PartialRegion(id=(x, y),
                                           is_used=False,
                                           task=None,
-                                          height=self.architecture.pr_height,
-                                          width=self.architecture.pr_width,
-                                          num_input=self.architecture.pr_num_input,
-                                          num_output=self.architecture.pr_num_output)
+                                          height=self.config.pr_height,
+                                          width=self.config.pr_width,
+                                          num_input=self.config.pr_num_input,
+                                          num_output=self.config.pr_num_output)
 
         return prs
 
@@ -108,14 +146,14 @@ class Accelerator:
             ----------
             shape: (height, width)
         """
-        if self.architecture.pr_flexible:
+        if self.config.pr_flexible:
             raise NotImplementedError("Flexible PR allocation is not available yet.")
         else:
             height, width = shape
             # Note: Greedy search algorithm for available prs.
             found = False
-            for y in range(self.architecture.num_pr_height - height + 1):
-                for x in range(self.architecture.num_pr_width - width + 1):
+            for y in range(self.config.num_pr_height - height + 1):
+                for x in range(self.config.num_pr_width - width + 1):
                     pr_mask = np.array(self.pr_available_mask)[y:y+height, x:x+width]
                     is_available = reduce(lambda x, y: x and y, pr_mask.flatten())
                     if is_available:

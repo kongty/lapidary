@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from lapidary.accelerator import Accelerator
 from lapidary.task import Task
 from lapidary.task_queue import TaskQueue
-from lapidary.app_pool import AppPool
+from lapidary.app import AppPool
 from typing import List
 
 
@@ -32,7 +32,7 @@ class GreedyScheduler(Scheduler):
         """Call schedule function when new tasks arrive or old tasks finish."""
         while True:
             yield self.task_queue.evt_task_arrive | accelerator.evt_task_done
-            print(f"[@ {self.env.now}] schedule is triggered.")
+            # print(f"[@ {self.env.now}] schedule is triggered.")
             for _ in range(self.task_queue.size()):
                 # Get one task from a queue and schedule it on the accelerator.
                 task = self.task_queue.peek()

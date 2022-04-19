@@ -32,21 +32,32 @@ class GreedyScheduler(Scheduler):
         """Call schedule function when new tasks arrive or old tasks finish."""
         while True:
             yield self.task_queue.evt_task_arrive | accelerator.evt_task_done
-            print(f"schedule is triggered @ {self.env.now}")
+            print(f"[@ {self.env.now}] schedule is triggered.")
             for _ in range(self.task_queue.size()):
                 # Get one task from a queue and schedule it on the accelerator.
-                task = self.task_queue.get()
-                self.schedule([task], accelerator, app_pool)
-                print(f"{task.name} is scheduled @ {self.env.now}")
+                task = self.task_queue.peek()
+                if self.schedule(task, accelerator, app_pool):
+                    print(f"[@ {self.env.now}] {task.name} is scheduled.")
+                    self.task_queue.get()
 
-    def schedule(self, tasks: List[Task], accelerator: Accelerator, app_pool: AppPool) -> bool:
-        """Schedule tasks on the accelerator and returns True/False if scheduling succeeds/fails."""
-        for task in tasks:
-            task_app_config_list = app_pool.get(task.app)
-            # TODO: Optimize by choosing the best bitstream from the app_pool.
-            # For now, we just use the first app_config from the app_pool.
-            app_config = task_app_config_list[0]
-            task.set_app_config(app_config)
+    def schedule(self, task: Task, accelerator: Accelerator, app_pool: AppPool) -> bool:
+        """Schedule a task on the accelerator and returns True/False if scheduling succeeds/fails."""
+        task_app_config_list = app_pool.get(task.app)
+        # TODO: Optimize by choosing the best bitstream from the app_pool.
+        # For now, we just use the first app_config from the app_pool.
+        if len(task_app_config_list) == 0:
+            print(f"[LOG] There is no app_config for {task.app} in the app_pool. This task will be dropped.")
+            self.task_queue.get()
+            return False
 
-            lb_point, rt_point = accelerator.get_max_rectangle_prs()
-            accelerator.execute(task, None)
+        app_config = task_app_config_list[0]
+        task.set_app_config(app_config)
+
+        prs = accelerator.map(task)
+        if len(prs) == 0:
+            print(f"[@ {self.env.now}] Cannot map {task.name} on the accelerator now.")
+            return False
+
+        self.env.process(accelerator.execute(task, prs))
+
+        return True

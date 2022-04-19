@@ -22,9 +22,9 @@ class Architecture:
             print(f"[LOG] Use the default architecture config")
 
     def set_architecture(self, config_file: str) -> None:
+        """Set architecture properties with input configuration file."""
         if not os.path.exists(config_file):
-            print("[ERROR] Architecture config file not found")
-            exit()
+            raise Exception("[ERROR] Architecture config file not found")
         else:
             print(f"[LOG] Architecture config file read: {config_file}")
         with open(config_file, 'r') as f:

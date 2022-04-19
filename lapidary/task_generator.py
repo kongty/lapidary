@@ -19,6 +19,7 @@ class TaskGenerator:
         self.intervals = self._generate_intervals()
 
     def _set_params(self, config_dict: dict) -> None:
+        """Set properties."""
         self.name = config_dict['name']
         self.app = config_dict['app']
         self.dist = config_dict['dist']
@@ -30,6 +31,7 @@ class TaskGenerator:
             self.dist_size = config_dict['dist_size']
 
     def _generate_intervals(self) -> List[int]:
+        """Generate a interval list."""
         if self.dist == "manual":
             dist_interval = self.dist_interval
             if len(dist_interval) > 0:
@@ -45,6 +47,7 @@ class TaskGenerator:
             raise Exception(error)
 
     def proc_generate(self, task_queue: TaskQueue) -> None:
+        """Generate a task and put to a task_queue in a scheduler."""
         for task_id, interval in enumerate(self.intervals):
             self.evt_generate = self.env.event()
             yield self.env.timeout(interval)
@@ -52,6 +55,6 @@ class TaskGenerator:
             task = Task(self.env, self.name, task_id, self.app)
             task.ts_arrive = self.env.now
             self.evt_generate.succeed(value=task)
-            print(f"{task.name} arrived @ {self.env.now}")
+            print(f"[@ {self.env.now}] {task.name} arrived.")
 
             task_queue.put(task)

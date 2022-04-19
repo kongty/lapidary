@@ -16,6 +16,9 @@ class TaskQueue:
         self.evt_task_arrive.succeed()
         self.evt_task_arrive = self.env.event()
 
+    def peek(self, idx: int = 0) -> Task:
+        return self.q[idx]
+
     def get(self) -> Task:
         task = self.q.pop(0)
         return task

@@ -15,6 +15,7 @@ class Simulator:
         self.app_pool = app_pool
 
     def run(self, until: int) -> None:
+        """Dispatch workload, start scheduler, and run simpy simulation."""
         self.workload.run_dispatch(self.scheduler.task_queue)
         self.scheduler.run(self.accelerator, self.app_pool)
 

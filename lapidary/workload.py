@@ -16,9 +16,9 @@ class Workload:
         self.evt_dispatch = self.env.event()
 
     def set_workload(self, config_file: str) -> None:
+        """Set workload properties with input configuration file."""
         if not os.path.exists(config_file):
-            print("[ERROR] Workload config file not found")
-            exit()
+            raise Exception("[ERROR] Workload config file not found")
         else:
             print(f"[LOG] Workload config file read: {config_file}")
         with open(config_file, 'r') as f:
@@ -29,5 +29,6 @@ class Workload:
             self.task_generators.append(TaskGenerator(self.env, task_config_dict))
 
     def run_dispatch(self, task_queue: TaskQueue):
+        """Run task generate proccesses in each task generators."""
         for task_generator in self.task_generators:
             self.env.process(task_generator.proc_generate(task_queue))

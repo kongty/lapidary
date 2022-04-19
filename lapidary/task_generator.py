@@ -2,7 +2,6 @@ import simpy
 import numpy as np
 from typing import List
 from lapidary.task import Task
-from lapidary.task_queue import TaskQueue
 
 
 class TaskGenerator:
@@ -17,6 +16,7 @@ class TaskGenerator:
         self.dist_lam = 0
         self._set_params(config_dict)
         self.intervals = self._generate_intervals()
+        self.evt_generate = self.env.event()
 
     def _set_params(self, config_dict: dict) -> None:
         """Set properties."""
@@ -46,15 +46,12 @@ class TaskGenerator:
             error = f"The distribution '{self.dist}' is not supported. ['manual', 'poission']"
             raise Exception(error)
 
-    def proc_generate(self, task_queue: TaskQueue) -> None:
-        """Generate a task and put to a task_queue in a scheduler."""
+    def proc_generate(self) -> None:
+        """Generate a task, trigger an event, and return the task with the event."""
         for task_id, interval in enumerate(self.intervals):
-            self.evt_generate = self.env.event()
             yield self.env.timeout(interval)
 
             task = Task(self.env, self.name, task_id, self.app)
             task.ts_arrive = self.env.now
             self.evt_generate.succeed(value=task)
             print(f"[@ {self.env.now}] {task.name} arrived.")
-
-            task_queue.put(task)

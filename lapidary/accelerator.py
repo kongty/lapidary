@@ -105,6 +105,8 @@ class Accelerator:
         yield self.env.process(task.proc_execute())
         self.deallocate(prs)
         self.evt_task_done.succeed()
+
+    def acknowledge_task_done(self) -> None:
         self.evt_task_done = self.env.event()
 
     def allocate(self, task: Task, prs: List[PartialRegion]) -> bool:

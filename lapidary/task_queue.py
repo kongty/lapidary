@@ -1,5 +1,6 @@
 import simpy
 from lapidary.task import Task
+from typing import Union, List
 
 
 class TaskQueue:
@@ -11,10 +12,12 @@ class TaskQueue:
     def __getitem__(self, key: int) -> Task:
         return self.q[key]
 
-    def put(self, task: Task) -> None:
-        self.q.append(task)
-        self.evt_task_arrive.succeed()
-        self.evt_task_arrive = self.env.event()
+    def put(self, tasks: Union[Task, List[Task]]) -> None:
+        if type(tasks) is Task:
+            tasks = [tasks]
+
+        self.q.extend(tasks)
+        self.evt_task_arrive.succeed(value=tasks)
 
     def peek(self, idx: int = 0) -> Task:
         return self.q[idx]
@@ -25,3 +28,6 @@ class TaskQueue:
 
     def size(self) -> int:
         return len(self.q)
+
+    def acknowledge(self) -> None:
+        self.evt_task_arrive = self.env.event()

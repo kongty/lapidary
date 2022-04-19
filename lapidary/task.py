@@ -1,6 +1,13 @@
 import simpy
 from lapidary.app import AppConfig
 from typing import Tuple
+from enum import Enum
+
+
+class TaskStatus(Enum):
+    pending = 1
+    running = 2
+    done = 3
 
 
 class Task:
@@ -10,6 +17,7 @@ class Task:
         self.id = id
         self.name = self.task + "_#" + str(self.id)
         self.app = app
+        self.status = TaskStatus.pending
         self.ts_arrive = 0
         self.ts_schedule = 0
         self.ts_done = 0

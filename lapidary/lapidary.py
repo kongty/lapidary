@@ -1,11 +1,9 @@
 import simpy
-from typing import Optional
 from lapidary.app_pool import AppPool
 from lapidary.architecture import Architecture
 from lapidary.accelerator import Accelerator
 from lapidary.workload import Workload
 from lapidary.scheduler import GreedyScheduler
-from lapidary.simulator import Simulator
 
 
 class Lapidary:
@@ -17,8 +15,10 @@ class Lapidary:
         self.accelerator = Accelerator(self.env, self.architecture)
         self.scheduler = GreedyScheduler(self.env)
         self.app_pool = app_pool
-        self.simulator = Simulator(self.env, self.accelerator, self.workload, self.scheduler, self.app_pool)
 
     def run(self, until: int) -> None:
-        """Run simulator until 'until' time unit."""
-        self.simulator.run(until=until)
+        """Dispatch workload, start scheduler, and run simpy simulation."""
+        self.workload.run_dispatch(self.scheduler.task_queue)
+        self.scheduler.run(self.accelerator, self.app_pool)
+
+        self.env.run(until=until)

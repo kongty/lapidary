@@ -60,10 +60,14 @@ class Accelerator:
     def execute(self, task: Task, prs: List[PartialRegion]) -> None:
         """Start task execution process."""
         self.allocate(task, prs)
+        self.env.process(self.proc_execute(task, prs))
+
+    def proc_execute(self, task: Task, prs: List[PartialRegion]) -> None:
+        """Start task execution process."""
         yield self.env.process(task.proc_execute())
+        self.deallocate(prs)
         self.evt_task_done.succeed()
         self.evt_task_done = self.env.event()
-        self.deallocate(prs)
 
     def allocate(self, task: Task, prs: List[PartialRegion]) -> bool:
         """Allocate prs to a task."""

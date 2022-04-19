@@ -55,9 +55,9 @@ class GreedyScheduler(Scheduler):
 
         prs = accelerator.map(task)
         if len(prs) == 0:
-            print(f"[@ {self.env.now}] Cannot map {task.name} on the accelerator now.")
+            print(f"[@ {self.env.now}] Cannot map {task.name} on the accelerator yet.")
             return False
 
-        self.env.process(accelerator.execute(task, prs))
+        accelerator.execute(task, prs)
 
         return True

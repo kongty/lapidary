@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
     app_pool = AppPool("app_pool_0")
     # TODO: For now, we only use pr/input/output for scheduling.
-    app_pool.add("app_0", AppConfig(pr_shape=(1, 4), pe=150, mem=15, input=1, output=1, runtime=50))
-    app_pool.add("app_1", AppConfig(pr_shape=(1, 4), pe=150, mem=15, input=1, output=1, runtime=50))
+    app_pool.add("app_0", AppConfig(pr_shape=(1, 4), pe=150, mem=15, input=1, output=1, runtime=100))
+    app_pool.add("app_1", AppConfig(pr_shape=(1, 8), pe=150, mem=15, input=1, output=1, runtime=50))
 
     lapidary = Lapidary(architecture_filename=args.arch, workload_filename=args.workload, app_pool=app_pool)
-    lapidary.run(until=500)
+    lapidary.run(until=1000)

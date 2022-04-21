@@ -22,6 +22,10 @@ class Bank:
 
 
 @dataclass
-class DramController:
-    is_used: bool
+class OffchipInterface:
+    bandwidth: int
+
+
+@dataclass
+class NoC:
     bandwidth: int

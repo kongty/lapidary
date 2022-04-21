@@ -49,6 +49,7 @@ class GreedyScheduler(Scheduler):
                 task = self.task_queue.peek()
                 if self.schedule(task, accelerator):
                     print(f"[@ {self.env.now}] {task.name} is scheduled.")
+                    task.ts_schedule = self.env.now
                     self.task_queue.get()
 
     def schedule(self, task: Task, accelerator: Accelerator) -> bool:

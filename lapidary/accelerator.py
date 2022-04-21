@@ -4,13 +4,13 @@ import os
 import simpy
 from typing import List, Tuple, Optional, Union, Dict
 from functools import reduce
-from lapidary.components import PartialRegion, Bank, DramController
+from lapidary.components import NoC, PartialRegion, Bank, OffchipInterface
 from lapidary.task import Task
 
 
 class AcceleratorConfig:
     def __init__(self, config: Optional[Union[str, Dict]] = None) -> None:
-        self.name = 'amber'
+        self.name = 'accelerator'
         self.num_glb_banks = 32
         self.num_pr_height = 1
         self.num_pr_width = 8
@@ -34,24 +34,35 @@ class AcceleratorConfig:
             with open(config, 'r') as f:
                 config = yaml.load(f, Loader=yaml.SafeLoader)
 
-        self.name = config['name']
-        self.num_glb_banks = config['num_glb_banks']
-        self.num_pr_height = config['num_pr_height']
-        self.num_pr_width = config['num_pr_width']
-        self.pr_flexible = config['pr_flexible']
-        self.pr_height = config['pr']['height']
-        self.pr_width = config['pr']['width']
-        self.pr_num_input = config['pr']['num_input']
-        self.pr_num_output = config['pr']['num_output']
+        if 'name' in config:
+            self.name = config['name']
+        if 'num_glb_banks' in config:
+            self.num_glb_banks = config['num_glb_banks']
+        if 'num_pr_height' in config:
+            self.num_pr_height = config['num_pr_height']
+        if 'num_pr_width' in config:
+            self.num_pr_width = config['num_pr_width']
+        if 'pr_flexible' in config:
+            self.pr_flexible = config['pr_flexible']
+        if 'pr' in config:
+            if 'height' in config['pr']:
+                self.pr_height = config['pr']['height']
+            if 'width' in config['pr']:
+                self.pr_width = config['pr']['width']
+            if 'num_input' in config['pr']:
+                self.pr_num_input = config['pr']['num_input']
+            if 'num_output' in config['pr']:
+                self.pr_num_output = config['pr']['num_output']
 
 
 class Accelerator:
     def __init__(self, env: simpy.Environment, config: Optional[Union[str, Dict]]) -> None:
         self.env = env
         self.config = AcceleratorConfig(config)
-        self.prs = self._generate_prs()
+        self.offchip_interface = self._generate_offchip_interface()
         self.banks = self._generate_banks()
-        self.dram_controller = self._generate_dram_controller()
+        self.noc = self._generate_noc()
+        self.prs = self._generate_prs()
 
         # self.pr_mask is a readonly property
         self._pr_available_mask = [[True] * len(self.prs[0])] * len(self.prs)
@@ -78,8 +89,12 @@ class Accelerator:
         """Return 1d-list of global buffer banks."""
         pass
 
-    def _generate_dram_controller(self) -> DramController:
+    def _generate_offchip_interface(self) -> OffchipInterface:
         """Return a DRAM controller."""
+        pass
+
+    def _generate_noc(self) -> NoC:
+        """Return a NoC."""
         pass
 
     @property

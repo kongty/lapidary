@@ -39,7 +39,8 @@ class Workload:
         """Run task generate proccesses in each task generators."""
         while True:
             evt_generate_list = [task_gen.evt_generate for task_gen in self.task_generators]
-            evt_generate_any = reduce(lambda x, y: x | y, evt_generate_list)
+            # evt_generate_any = reduce(lambda x, y: x | y, evt_generate_list)
+            evt_generate_any = simpy.AnyOf(self.env, evt_generate_list)
             tasks_dict = yield evt_generate_any
             tasks = []
             for task_generator in self.task_generators:

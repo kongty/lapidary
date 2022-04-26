@@ -23,7 +23,7 @@ class Task:
         self.status = TaskStatus.pending
         self.deps = deps
 
-        self.ts_arrive = 0
+        self.ts_generate = 0
         self.ts_schedule = 0
         self.ts_done = 0
 

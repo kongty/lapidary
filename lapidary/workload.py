@@ -24,6 +24,7 @@ class Workload:
     def set_workload(self, config: Union[str, Dict]) -> None:
         """Set workload properties with input configuration file."""
         if type(config) is str:
+            config = os.path.realpath(config)
             if not os.path.exists(config):
                 raise Exception("[ERROR] Workload config file not found")
             else:

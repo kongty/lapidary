@@ -47,11 +47,11 @@ def test_greedy_scheduler(task_interval: List[int], runtime: int):
     scheduler.run(accelerator)
     env.run(600)
 
-    assert scheduler.log_tasks[0].ts_arrive == task_interval[0]
-    assert scheduler.log_tasks[0].ts_schedule == task_interval[0]
-    assert scheduler.log_tasks[0].ts_done == task_interval[0] + runtime
+    assert scheduler.task_log[0].ts_arrive == task_interval[0]
+    assert scheduler.task_log[0].ts_schedule == task_interval[0]
+    assert scheduler.task_log[0].ts_done == task_interval[0] + runtime
 
-    assert scheduler.log_tasks[1].ts_arrive == task_interval[0] + task_interval[1]
-    assert scheduler.log_tasks[1].ts_schedule == max(task_interval[0] + task_interval[1], task_interval[0] + runtime)
-    assert scheduler.log_tasks[1].ts_done == max(
+    assert scheduler.task_log[1].ts_arrive == task_interval[0] + task_interval[1]
+    assert scheduler.task_log[1].ts_schedule == max(task_interval[0] + task_interval[1], task_interval[0] + runtime)
+    assert scheduler.task_log[1].ts_done == max(
         task_interval[0] + task_interval[1], task_interval[0] + runtime) + runtime

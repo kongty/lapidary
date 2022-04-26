@@ -1,4 +1,6 @@
 import simpy
+import os
+from pathlib import Path
 from lapidary.app import AppPool
 from lapidary.accelerator import Accelerator
 from lapidary.workload import Workload
@@ -21,5 +23,16 @@ class Lapidary:
         """Dispatch workload, start scheduler, and run simpy simulation."""
         self.workload.run_dispatch(self.scheduler.task_queue)
         self.scheduler.run(self.accelerator)
-
         self.env.run(until=until)
+
+    def generate_log(self, filename: str) -> None:
+        filename = os.path.realpath(filename)
+        Path(os.path.dirname(filename)).mkdir(parents=True, exist_ok=True)
+        with open(filename, 'w') as f:
+            header = 'tag, ts_generate, ts_schedule, ts_done\n'
+            f.write(header)
+            for task in self.scheduler.task_log:
+                log = task.tag + ", " + str(task.ts_generate) + ", " + \
+                    str(task.ts_schedule) + ", " + str(task.ts_done) + "\n"
+                f.write(log)
+        print(f"[LOG] A log file was generated: {filename}")

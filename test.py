@@ -10,7 +10,7 @@ if __name__ == "__main__":
                         default="./cfg/hw/amber.yml", help="Path to the architecture config file")
     parser.add_argument("--workload", metavar="workload file", type=str,
                         default="./cfg/workload/workload_0.yml", help="Path to the workload config file")
-    parser.add_argument("--log-dir", metavar="log dir", type=str, default="./logs", help="Path to log directory")
+    parser.add_argument("--log", metavar="log", type=str, default="./logs/task.csv", help="Path to log file")
     args = parser.parse_args()
 
     app_pool = AppPool("app_pool_0")
@@ -19,3 +19,4 @@ if __name__ == "__main__":
 
     lapidary = Lapidary(accelerator_config=args.arch, workload_config=args.workload, app_pool=app_pool)
     lapidary.run(until=2000)
+    lapidary.generate_log(args.log)

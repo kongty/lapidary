@@ -1,17 +1,15 @@
 import simpy
 from abc import ABC, abstractmethod
 from lapidary.accelerator import Accelerator
-from lapidary.task import Task
 from lapidary.task_queue import TaskQueue
 from lapidary.app import AppPool
-from typing import List
 
 
 class Scheduler(ABC):
     def __init__(self, env: simpy.Environment) -> None:
         self.env = env
         self.task_queue = TaskQueue(self.env)
-        self.log_tasks = []
+        self.task_log = []
         self.app_pool = None
 
     def set_app_pool(self, app_pool: AppPool) -> None:
@@ -25,7 +23,7 @@ class Scheduler(ABC):
         pass
 
     @abstractmethod
-    def schedule(self, accelerator: Accelerator) -> List[Task]:
+    def schedule(self, accelerator: Accelerator) -> None:
         pass
 
 
@@ -38,7 +36,7 @@ class GreedyScheduler(Scheduler):
         while True:
             triggered = yield self.task_queue.evt_task_arrive | accelerator.evt_task_done
             if self.task_queue.evt_task_arrive in triggered:
-                self.log_tasks.extend(triggered[self.task_queue.evt_task_arrive])
+                self.task_log.extend(triggered[self.task_queue.evt_task_arrive])
                 self.task_queue.acknowledge_task_arrive()
             if accelerator.evt_task_done in triggered:
                 task = triggered[accelerator.evt_task_done]
@@ -46,7 +44,7 @@ class GreedyScheduler(Scheduler):
                 accelerator.acknowledge_task_done()
             self.schedule(accelerator)
 
-    def schedule(self, accelerator: Accelerator) -> List[Task]:
+    def schedule(self, accelerator: Accelerator) -> None:
         """Schedule tasks on the accelerator and return a list of tasks that are scheduled."""
         # list of tasks that are scheduled
         tasks_scheduled = []
@@ -87,5 +85,3 @@ class GreedyScheduler(Scheduler):
         # Remove tasks that are scheduled from the queue
         for task in tasks_scheduled:
             self.task_queue.remove(task)
-
-        return True

@@ -28,6 +28,7 @@ class AcceleratorConfig:
     def set_config(self, config: Union[str, Dict]) -> None:
         """Set architecture properties with input configuration file."""
         if type(config) is str:
+            config = os.path.realpath(config)
             if not os.path.exists(config):
                 raise Exception("[ERROR] Architecture config file not found")
             else:

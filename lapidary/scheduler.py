@@ -48,29 +48,44 @@ class GreedyScheduler(Scheduler):
 
     def schedule(self, accelerator: Accelerator) -> List[Task]:
         """Schedule tasks on the accelerator and return a list of tasks that are scheduled."""
+        # list of tasks that are scheduled
+        tasks_scheduled = []
+
+        # Search all tasks in the task queue
         for task in self.task_queue.q:
-            # Get one task from a queue that is dependency-free
-            if len(task.deps) == 0:
-                # TODO: Optimize by choosing the best bitstream from the app_pool.
-                # For now, we just use the first app_config from the app_pool.
-                app_config_list = self.app_pool.get(task.app)
-                if len(app_config_list) == 0:
-                    print(f"[LOG] There is no app_config for {task.app} in the app_pool. This task will be dropped.")
-                    self.task_queue.remove(task)
+            # Skip the task if it still has dependencies
+            if len(task.deps) != 0:
+                continue
 
-                app_config = app_config_list[0]
-                task.set_app_config(app_config)
+            # Get app_config candidates from an app_pool
+            app_config_list = self.app_pool.get(task.app)
+            # Skip the task if there is no possible app config
+            if len(app_config_list) == 0:
+                print(f"[WARNING] There is no app_config for {task.app} in the app_pool.")
+                continue
 
-                prs = accelerator.map(task)
-                if len(prs) == 0:
-                    print(f"[@ {self.env.now}] Cannot map {task.tag} on the accelerator yet.")
-                    return False
+            # TODO: Optimize by choosing the best bitstream from the app_pool.
+            # For now, we just use the first available app_config from the app_pool.
+            is_mapped = False
+            for app_config in app_config_list:
+                prs = accelerator.map(app_config)
+                if len(prs) > 0:
+                    is_mapped = True
+                    break
 
-                print(f"[@ {self.env.now}] {task.tag} is scheduled.")
-                task.ts_schedule = self.env.now
-                self.task_queue.get()
+            # Skip the task if any app_config is not mappable
+            if is_mapped is False:
+                continue
 
+            # Set app_config for the task
+            task.set_app_config(app_config)
+            print(f"[@ {self.env.now}] {task.tag} is scheduled.")
+            accelerator.execute(task, prs)
+            task.ts_schedule = self.env.now
+            tasks_scheduled.append(task)
 
-        accelerator.execute(task, prs)
+        # Remove tasks that are scheduled from the queue
+        for task in tasks_scheduled:
+            self.task_queue.remove(task)
 
         return True

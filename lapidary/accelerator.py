@@ -4,7 +4,8 @@ import os
 import simpy
 from typing import List, Tuple, Optional, Union, Dict
 from functools import reduce
-from lapidary.components import NoC, PartialRegion, Bank, OffchipInterface
+from lapidary.app import AppConfig
+from lapidary.components import ComponentStatus, NoC, PartialRegion, Bank, OffchipInterface
 from lapidary.task import Task
 
 
@@ -76,7 +77,7 @@ class Accelerator:
         for y in range(self.config.num_pr_height):
             for x in range(self.config.num_pr_width):
                 prs[y][x] = PartialRegion(id=(x, y),
-                                          is_used=False,
+                                          status=ComponentStatus.idle,
                                           task=None,
                                           height=self.config.pr_height,
                                           width=self.config.pr_width,
@@ -104,7 +105,7 @@ class Accelerator:
             pr_mask = [[True] * len(self.prs[0])] * len(self.prs)
             for y in range(len(pr_mask)):
                 for x in range(len(pr_mask[0])):
-                    if self.prs[y][x].is_used:
+                    if self.prs[y][x].status != ComponentStatus.idle:
                         pr_mask[y][x] = False
             self._pr_available_mask = pr_mask
 
@@ -124,47 +125,40 @@ class Accelerator:
     def acknowledge_task_done(self) -> None:
         self.evt_task_done = self.env.event()
 
-    def allocate(self, task: Task, prs: List[PartialRegion]) -> bool:
+    def allocate(self, task: Task, prs: List[PartialRegion]) -> None:
         """Allocate prs to a task."""
-        prs_is_used = [pr.is_used for pr in prs]
-        if reduce(lambda x, y: x or y, prs_is_used) is True:
-            return False
-        else:
-            for pr in prs:
-                pr.is_used = True
-                pr.task = task
-            # Initialize pr_mask to None
-            self._pr_available_mask = None
-            return True
+        for pr in prs:
+            if pr.status != ComponentStatus.idle:
+                raise Exception(f"Cannot allocate PR_{pr.id} to {task.tag}. It is not idle.")
+            pr.status = ComponentStatus.used
+            pr.task = task
+        # Initialize pr_mask to None
+        self._pr_available_mask = None
 
-    def deallocate(self, prs: List[PartialRegion]) -> bool:
+    def deallocate(self, prs: List[PartialRegion]) -> None:
         """Deallocate prs."""
-        prs_is_used = [pr.is_used for pr in prs]
-        if reduce(lambda x, y: x and y, prs_is_used) is False:
-            return False
-        else:
-            for pr in prs:
-                pr.is_used = False
-                pr.task = None
-            # Initialize pr_mask to None
-            self._pr_available_mask = None
-            return True
+        for pr in prs:
+            if pr.status == ComponentStatus.idle:
+                raise Exception(f"Cannot deallocate PR_{pr.id}. It is already idle.")
+            pr.status = ComponentStatus.idle
+            pr.task = None
+        # Initialize pr_mask to None
+        self._pr_available_mask = None
 
-    def map(self, task: Task) -> List[PartialRegion]:
-        """Return a list of available prs where a task can be mapped."""
-        pr_shape = task.get_pr_shape()
-        prs = self.get_available_prs(pr_shape)
+    def map(self, app_config: AppConfig) -> List[PartialRegion]:
+        """Return a list of available prs where an app_config can be mapped."""
+        prs = self.map_pr(app_config.pr_shape)
         return prs
 
-    def get_available_prs(self, shape: Tuple[int, int]) -> List[PartialRegion]:
-        """Return a list of available prs where input shape fits in.
+    def map_pr(self, shape: Tuple[int, int]) -> List[PartialRegion]:
+        """Return a list of prs where input shape fits in.
 
             Parameters
             ----------
             shape: (height, width)
         """
         if self.config.pr_flexible:
-            raise NotImplementedError("Flexible PR allocation is not available yet.")
+            raise NotImplementedError("Flexible PR mapping is not available yet.")
         else:
             height, width = shape
             # Note: Greedy search algorithm for available prs.

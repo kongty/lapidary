@@ -18,8 +18,8 @@ class Task:
         self.name = task_name
         self.workload_name = workload_name
         self.workload_id = workload_id
-        self.tag = self.workload_name + "_#" + str(self.workload_id) + "_" + self.name
         self.app = app
+        self.tag = self.workload_name + "_#" + str(self.workload_id) + "_" + self.name + "_" + self.app
         self.status = TaskStatus.pending
         self.deps = deps
 

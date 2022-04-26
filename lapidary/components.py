@@ -1,12 +1,19 @@
 from dataclasses import dataclass
 from lapidary.task import Task
 from typing import Optional, Tuple
+from enum import Enum
+
+
+class ComponentStatus(Enum):
+    idle = 1
+    reserved = 2
+    used = 3
 
 
 @dataclass
 class PartialRegion:
     id: Tuple[int, int]
-    is_used: bool
+    status: ComponentStatus
     task: Optional[Task]
     height: int
     width: int
@@ -16,7 +23,7 @@ class PartialRegion:
 
 @dataclass
 class Bank:
-    is_used: bool
+    status: ComponentStatus
     task: Optional[Task]
     size: int
 

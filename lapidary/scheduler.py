@@ -25,7 +25,7 @@ class Scheduler(ABC):
         pass
 
     @abstractmethod
-    def schedule(self, tasks: List[Task], accelerator: Accelerator) -> bool:
+    def schedule(self, accelerator: Accelerator) -> List[Task]:
         pass
 
 
@@ -41,34 +41,35 @@ class GreedyScheduler(Scheduler):
                 self.log_tasks.extend(triggered[self.task_queue.evt_task_arrive])
                 self.task_queue.acknowledge()
             if accelerator.evt_task_done in triggered:
+                task = triggered[accelerator.evt_task_done]
+                self.task_queue.update_dependency(done=task)
                 accelerator.acknowledge_task_done()
+            self.schedule(accelerator)
 
-            # print(f"[@ {self.env.now}] schedule is triggered.")
-            for _ in range(self.task_queue.size()):
-                # Get one task from a queue and schedule it on the accelerator.
-                task = self.task_queue.peek()
-                if self.schedule(task, accelerator):
-                    print(f"[@ {self.env.now}] {task.name} is scheduled.")
-                    task.ts_schedule = self.env.now
-                    self.task_queue.get()
+    def schedule(self, accelerator: Accelerator) -> List[Task]:
+        """Schedule tasks on the accelerator and return a list of tasks that are scheduled."""
+        for task in self.task_queue.q:
+            # Get one task from a queue that is dependency-free
+            if len(task.deps) == 0:
+                # TODO: Optimize by choosing the best bitstream from the app_pool.
+                # For now, we just use the first app_config from the app_pool.
+                app_config_list = self.app_pool.get(task.app)
+                if len(app_config_list) == 0:
+                    print(f"[LOG] There is no app_config for {task.app} in the app_pool. This task will be dropped.")
+                    self.task_queue.remove(task)
 
-    def schedule(self, task: Task, accelerator: Accelerator) -> bool:
-        """Schedule a task on the accelerator and returns True/False if scheduling succeeds/fails."""
-        task_app_config_list = self.app_pool.get(task.app)
-        # TODO: Optimize by choosing the best bitstream from the app_pool.
-        # For now, we just use the first app_config from the app_pool.
-        if len(task_app_config_list) == 0:
-            print(f"[LOG] There is no app_config for {task.app} in the app_pool. This task will be dropped.")
-            self.task_queue.get()
-            return False
+                app_config = app_config_list[0]
+                task.set_app_config(app_config)
 
-        app_config = task_app_config_list[0]
-        task.set_app_config(app_config)
+                prs = accelerator.map(task)
+                if len(prs) == 0:
+                    print(f"[@ {self.env.now}] Cannot map {task.tag} on the accelerator yet.")
+                    return False
 
-        prs = accelerator.map(task)
-        if len(prs) == 0:
-            print(f"[@ {self.env.now}] Cannot map {task.name} on the accelerator yet.")
-            return False
+                print(f"[@ {self.env.now}] {task.tag} is scheduled.")
+                task.ts_schedule = self.env.now
+                self.task_queue.get()
+
 
         accelerator.execute(task, prs)
 

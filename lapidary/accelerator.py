@@ -119,7 +119,7 @@ class Accelerator:
         """Start task execution process."""
         yield self.env.process(task.proc_execute())
         self.deallocate(prs)
-        self.evt_task_done.succeed()
+        self.evt_task_done.succeed(value=task)
 
     def acknowledge_task_done(self) -> None:
         self.evt_task_done = self.env.event()

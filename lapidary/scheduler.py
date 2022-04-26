@@ -39,7 +39,7 @@ class GreedyScheduler(Scheduler):
             triggered = yield self.task_queue.evt_task_arrive | accelerator.evt_task_done
             if self.task_queue.evt_task_arrive in triggered:
                 self.log_tasks.extend(triggered[self.task_queue.evt_task_arrive])
-                self.task_queue.acknowledge()
+                self.task_queue.acknowledge_task_arrive()
             if accelerator.evt_task_done in triggered:
                 task = triggered[accelerator.evt_task_done]
                 self.task_queue.update_dependency(done=task)

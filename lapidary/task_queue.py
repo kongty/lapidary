@@ -43,7 +43,7 @@ class TaskQueue:
     def size(self) -> int:
         return len(self.q)
 
-    def acknowledge(self) -> None:
+    def acknowledge_task_arrive(self) -> None:
         self.evt_task_arrive = self.env.event()
 
     def update_dependency(self, done: Task) -> None:

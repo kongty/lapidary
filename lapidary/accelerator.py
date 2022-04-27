@@ -2,15 +2,32 @@ import numpy as np
 import yaml
 import os
 import simpy
-from typing import List, Tuple, Optional, Union, Dict
+from typing import List, Tuple, Optional, Union, TypedDict, Generator
 from functools import reduce
 from lapidary.app import AppConfig
 from lapidary.components import ComponentStatus, NoC, PartialRegion, Bank, OffchipInterface
 from lapidary.task import Task
+import logging
+logger = logging.getLogger(__name__)
+
+
+class PRConfigType(TypedDict):
+    height: int
+    width: int
+    num_input: int
+    num_output: int
+
+
+class AcceleratorConfigType(TypedDict):
+    name: str
+    num_glb_banks: int
+    num_pr_width: int
+    pr_flexible: bool
+    pr: PRConfigType
 
 
 class AcceleratorConfig:
-    def __init__(self, config: Optional[Union[str, Dict]] = None) -> None:
+    def __init__(self, config: Optional[Union[str, AcceleratorConfigType]] = None) -> None:
         self.name = 'accelerator'
         self.num_glb_banks = 32
         self.num_pr_height = 1
@@ -25,40 +42,42 @@ class AcceleratorConfig:
         if config is not None:
             self.set_config(config)
 
-    def set_config(self, config: Union[str, Dict]) -> None:
+    def set_config(self, config: Union[str, AcceleratorConfigType]) -> None:
         """Set architecture properties with input configuration file."""
-        if type(config) is str:
+        if isinstance(config, str):
             config = os.path.realpath(config)
             if not os.path.exists(config):
                 raise Exception("[ERROR] Architecture config file not found")
             else:
-                print(f"[LOG] Architecture config file read: {config}")
+                logger.info(f"Architecture config file read: {config}")
             with open(config, 'r') as f:
-                config = yaml.load(f, Loader=yaml.SafeLoader)
+                config_dict = yaml.load(f, Loader=yaml.SafeLoader)
+        else:
+            config_dict = config
 
-        if 'name' in config:
-            self.name = config['name']
-        if 'num_glb_banks' in config:
-            self.num_glb_banks = config['num_glb_banks']
-        if 'num_pr_height' in config:
-            self.num_pr_height = config['num_pr_height']
-        if 'num_pr_width' in config:
-            self.num_pr_width = config['num_pr_width']
-        if 'pr_flexible' in config:
-            self.pr_flexible = config['pr_flexible']
-        if 'pr' in config:
-            if 'height' in config['pr']:
-                self.pr_height = config['pr']['height']
-            if 'width' in config['pr']:
-                self.pr_width = config['pr']['width']
-            if 'num_input' in config['pr']:
-                self.pr_num_input = config['pr']['num_input']
-            if 'num_output' in config['pr']:
-                self.pr_num_output = config['pr']['num_output']
+        if 'name' in config_dict:
+            self.name = config_dict['name']
+        if 'num_glb_banks' in config_dict:
+            self.num_glb_banks = config_dict['num_glb_banks']
+        if 'num_pr_height' in config_dict:
+            self.num_pr_height = config_dict['num_pr_height']
+        if 'num_pr_width' in config_dict:
+            self.num_pr_width = config_dict['num_pr_width']
+        if 'pr_flexible' in config_dict:
+            self.pr_flexible = config_dict['pr_flexible']
+        if 'pr' in config_dict:
+            if 'height' in config_dict['pr']:
+                self.pr_height = config_dict['pr']['height']
+            if 'width' in config_dict['pr']:
+                self.pr_width = config_dict['pr']['width']
+            if 'num_input' in config_dict['pr']:
+                self.pr_num_input = config_dict['pr']['num_input']
+            if 'num_output' in config_dict['pr']:
+                self.pr_num_output = config_dict['pr']['num_output']
 
 
 class Accelerator:
-    def __init__(self, env: simpy.Environment, config: Optional[Union[str, Dict]]) -> None:
+    def __init__(self, env: simpy.Environment, config: Optional[Union[str, AcceleratorConfigType]]) -> None:
         self.env = env
         self.config = AcceleratorConfig(config)
         self.offchip_interface = self._generate_offchip_interface()
@@ -67,14 +86,14 @@ class Accelerator:
         self.prs = self._generate_prs()
 
         # self.pr_mask is a readonly property
-        self._pr_available_mask = [[True] * len(self.prs[0])] * len(self.prs)
+        self._pr_available_mask: Optional[List[List[bool]]] = [[True for _ in range(len(self.prs[0]))] for _ in range(len(self.prs))]
 
         # task_done event
         self.evt_task_done = self.env.event()
 
     def _generate_prs(self) -> List[List[PartialRegion]]:
         """Return 2d-list of partial regions."""
-        prs = [[None] * self.config.num_pr_width] * self.config.num_pr_height
+        prs: List[List[PartialRegion]] = [[PartialRegion() for _ in range(self.config.num_pr_width)] for _ in range(self.config.num_pr_height)]
         for y in range(self.config.num_pr_height):
             for x in range(self.config.num_pr_width):
                 prs[y][x] = PartialRegion(id=(x, y),
@@ -103,7 +122,7 @@ class Accelerator:
     def pr_available_mask(self) -> List[List[bool]]:
         """Return a 2-D mask for available prs."""
         if self._pr_available_mask is None:
-            pr_mask = [[True] * len(self.prs[0])] * len(self.prs)
+            pr_mask = [[True for _ in range(len(self.prs[0]))]  for _ in range(len(self.prs))]
             for y in range(len(pr_mask)):
                 for x in range(len(pr_mask[0])):
                     if self.prs[y][x].status != ComponentStatus.idle:
@@ -117,7 +136,7 @@ class Accelerator:
         self.allocate(task, prs)
         self.env.process(self.proc_execute(task, prs))
 
-    def proc_execute(self, task: Task, prs: List[PartialRegion]) -> None:
+    def proc_execute(self, task: Task, prs: List[PartialRegion]) -> Generator[simpy.events.Event, None, None]:
         """Start task execution process."""
         yield self.env.process(task.proc_execute())
         self.deallocate(prs)
@@ -164,9 +183,10 @@ class Accelerator:
             height, width = shape
             # Note: Greedy search algorithm for available prs.
             found = False
+            pr_available_mask = self.pr_available_mask
             for y in range(self.config.num_pr_height - height + 1):
                 for x in range(self.config.num_pr_width - width + 1):
-                    pr_mask = np.array(self.pr_available_mask)[y:y+height, x:x+width]
+                    pr_mask = np.array(pr_available_mask)[y:y+height, x:x+width]
                     is_available = reduce(lambda x, y: x and y, pr_mask.flatten())
                     if is_available:
                         found = True

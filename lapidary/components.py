@@ -12,13 +12,13 @@ class ComponentStatus(Enum):
 
 @dataclass
 class PartialRegion:
-    id: Tuple[int, int]
-    status: ComponentStatus
-    task: Optional[Task]
-    height: int
-    width: int
-    num_input: int
-    num_output: int
+    id: Tuple[int, int] = (0, 0)
+    status: ComponentStatus = ComponentStatus.idle
+    task: Optional[Task] = None
+    height: int = 0
+    width: int = 0
+    num_input: int = 0
+    num_output: int = 0
 
 
 @dataclass

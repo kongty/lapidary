@@ -5,6 +5,7 @@ workload_0:
   tasks:
     task_0:
       app: "app_0"
+      dependencies: []
     task_1:
       app: "app_1"
       dependencies: [task_0]

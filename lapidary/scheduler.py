@@ -1,16 +1,19 @@
 import simpy
 from abc import ABC, abstractmethod
+from typing import List, Generator, Any
 from lapidary.accelerator import Accelerator
 from lapidary.task_queue import TaskQueue
 from lapidary.app import AppPool
-
+from lapidary.task import Task
+import logging
+logger = logging.getLogger(__name__)
 
 class Scheduler(ABC):
     def __init__(self, env: simpy.Environment) -> None:
         self.env = env
         self.task_queue = TaskQueue(self.env)
-        self.task_log = []
-        self.app_pool = None
+        self.task_log: List[Task] = []
+        self.app_pool: AppPool
 
     def set_app_pool(self, app_pool: AppPool) -> None:
         self.app_pool = app_pool
@@ -19,7 +22,7 @@ class Scheduler(ABC):
         self.env.process(self.proc_schedule(accelerator))
 
     @abstractmethod
-    def proc_schedule(self, accelerator: Accelerator) -> None:
+    def proc_schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, Any, Any]:
         pass
 
     @abstractmethod
@@ -31,7 +34,7 @@ class GreedyScheduler(Scheduler):
     def __init__(self, env: simpy.Environment) -> None:
         super().__init__(env)
 
-    def proc_schedule(self, accelerator: Accelerator) -> None:
+    def proc_schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, simpy.events.ConditionValue, None]:
         """Call schedule function when new tasks arrive or old tasks finish."""
         while True:
             triggered = yield self.task_queue.evt_task_arrive | accelerator.evt_task_done
@@ -59,7 +62,7 @@ class GreedyScheduler(Scheduler):
             app_config_list = self.app_pool.get(task.app)
             # Skip the task if there is no possible app config
             if len(app_config_list) == 0:
-                print(f"[WARNING] There is no app_config for {task.app} in the app_pool.")
+                logger.warning(f"There is no app_config for {task.app} in the app_pool.")
                 continue
 
             # TODO: Optimize by choosing the best bitstream from the app_pool.
@@ -77,9 +80,9 @@ class GreedyScheduler(Scheduler):
 
             # Set app_config for the task
             task.set_app_config(app_config)
-            print(f"[@ {self.env.now}] {task.tag} is scheduled.")
+            logger.info(f"[@ {self.env.now}] {task.tag} is scheduled.")
             accelerator.execute(task, prs)
-            task.ts_schedule = self.env.now
+            task.ts_schedule = int(self.env.now)
             tasks_scheduled.append(task)
 
         # Remove tasks that are scheduled from the queue

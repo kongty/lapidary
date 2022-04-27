@@ -6,14 +6,14 @@ from typing import Union, List, Optional
 class TaskQueue:
     def __init__(self, env: simpy.Environment) -> None:
         self.env = env
-        self.q = []
+        self.q: List[Task] = []
         self.evt_task_arrive = self.env.event()
 
     def __getitem__(self, key: int) -> Task:
         return self.q[key]
 
     def put(self, tasks: Union[Task, List[Task]]) -> None:
-        if type(tasks) is Task:
+        if isinstance(tasks, Task):
             tasks = [tasks]
         for task in tasks:
             self._put(task)

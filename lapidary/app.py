@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 from collections import defaultdict
 from dataclasses import dataclass
 
@@ -16,7 +16,7 @@ class AppConfig:
 class AppPool:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.app_pool = defaultdict(list)
+        self.app_pool: Dict[str, List[AppConfig]] = defaultdict(list)
 
     def add(self, app: str, app_config: AppConfig) -> None:
         self.app_pool[app].append(app_config)

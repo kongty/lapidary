@@ -2,14 +2,16 @@ import simpy
 import os
 from pathlib import Path
 from lapidary.app import AppPool
-from lapidary.accelerator import Accelerator
+from lapidary.accelerator import Accelerator, AcceleratorConfigType
 from lapidary.workload import Workload
 from lapidary.scheduler import GreedyScheduler
 from typing import Optional, Union, Dict
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Lapidary:
-    def __init__(self, accelerator_config: Optional[Union[str, Dict]], workload_config: Optional[Union[str, Dict]],
+    def __init__(self, accelerator_config: Optional[Union[str, AcceleratorConfigType]], workload_config: Optional[Union[str, Dict]],
                  app_pool: AppPool) -> None:
         # simpy environment
         self.env = simpy.Environment()
@@ -35,4 +37,4 @@ class Lapidary:
                 log = task.tag + ", " + str(task.ts_generate) + ", " + \
                     str(task.ts_schedule) + ", " + str(task.ts_done) + "\n"
                 f.write(log)
-        print(f"[LOG] A log file was generated: {filename}")
+        logger.info(f"A log file was generated: {filename}")

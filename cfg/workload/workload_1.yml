@@ -1,13 +1,12 @@
-name: "workload_1"
-tasks:
-  - name: "task_0"
-    app: "app_0"
-    dist: "poisson"
-    dist_start: 0 # Can be random number in a range
-    dist_size: 1000
-    dist_lam: 100
-  - name: "task_1"
-    app: "app_1"
-    dist: "manual"
-    dist_start: 0 # Can be random number in a range
-    dist_interval: [200, 200]
+workload_1:
+  dist: "poisson" # manual or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_size: 10
+  dist_lambda: 300
+  tasks:
+    task_0:
+      app: "app_0"
+      dependencies: []
+    task_1:
+      app: "app_1"
+      dependencies: [task_0]

@@ -86,14 +86,16 @@ class Accelerator:
         self.prs = self._generate_prs()
 
         # self.pr_mask is a readonly property
-        self._pr_available_mask: Optional[List[List[bool]]] = [[True for _ in range(len(self.prs[0]))] for _ in range(len(self.prs))]
+        self._pr_available_mask: Optional[List[List[bool]]] = [
+            [True for _ in range(len(self.prs[0]))] for _ in range(len(self.prs))]
 
         # task_done event
         self.evt_task_done = self.env.event()
 
     def _generate_prs(self) -> List[List[PartialRegion]]:
         """Return 2d-list of partial regions."""
-        prs: List[List[PartialRegion]] = [[PartialRegion() for _ in range(self.config.num_pr_width)] for _ in range(self.config.num_pr_height)]
+        prs: List[List[PartialRegion]] = [[PartialRegion() for _ in range(self.config.num_pr_width)]
+                                          for _ in range(self.config.num_pr_height)]
         for y in range(self.config.num_pr_height):
             for x in range(self.config.num_pr_width):
                 prs[y][x] = PartialRegion(id=(x, y),
@@ -111,8 +113,8 @@ class Accelerator:
         pass
 
     def _generate_offchip_interface(self) -> OffchipInterface:
-        """Return a DRAM controller."""
-        pass
+        """Return an offchip interface."""
+        offchip_interface = OffchipInterface()
 
     def _generate_noc(self) -> NoC:
         """Return a NoC."""
@@ -122,7 +124,7 @@ class Accelerator:
     def pr_available_mask(self) -> List[List[bool]]:
         """Return a 2-D mask for available prs."""
         if self._pr_available_mask is None:
-            pr_mask = [[True for _ in range(len(self.prs[0]))]  for _ in range(len(self.prs))]
+            pr_mask = [[True for _ in range(len(self.prs[0]))] for _ in range(len(self.prs))]
             for y in range(len(pr_mask)):
                 for x in range(len(pr_mask[0])):
                     if self.prs[y][x].status != ComponentStatus.idle:

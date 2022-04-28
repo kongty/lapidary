@@ -23,16 +23,18 @@ class PartialRegion:
 
 @dataclass
 class Bank:
-    status: ComponentStatus
-    task: Optional[Task]
-    size: int
+    status: ComponentStatus = ComponentStatus.idle
+    task: Optional[Task] = None
+    size: int = 0
 
 
 @dataclass
 class OffchipInterface:
-    bandwidth: int
+    max_bandwidth: int = 0
+    bandwidth: int = 0
 
 
 @dataclass
 class NoC:
-    bandwidth: int
+    max_bandwidth: int = 0
+    bandwidth: int = 0

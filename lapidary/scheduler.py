@@ -8,6 +8,7 @@ from lapidary.task import Task
 import logging
 logger = logging.getLogger(__name__)
 
+
 class Scheduler(ABC):
     def __init__(self, env: simpy.Environment) -> None:
         self.env = env
@@ -34,7 +35,8 @@ class GreedyScheduler(Scheduler):
     def __init__(self, env: simpy.Environment) -> None:
         super().__init__(env)
 
-    def proc_schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, simpy.events.ConditionValue, None]:
+    def proc_schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, simpy.events.ConditionValue,
+                                                                   None]:
         """Call schedule function when new tasks arrive or old tasks finish."""
         while True:
             triggered = yield self.task_queue.evt_task_arrive | accelerator.evt_task_done

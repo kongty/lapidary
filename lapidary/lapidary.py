@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class Lapidary:
-    def __init__(self, accelerator_config: Optional[Union[str, AcceleratorConfigType]], workload_config: Optional[Union[str, Dict]],
-                 app_pool: AppPool) -> None:
+    def __init__(self, accelerator_config: Optional[Union[str, AcceleratorConfigType]],
+                 workload_config: Optional[Union[str, Dict]], app_pool: AppPool) -> None:
         # simpy environment
         self.env = simpy.Environment()
         self.workload = Workload(self.env, workload_config)

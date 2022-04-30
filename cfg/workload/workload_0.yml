@@ -1,7 +1,27 @@
-workload_0:
-  dist: "manual" # manual or poisson or stream
+application_0:
+  dist: "fixed" # manual or fixed or poisson or stream
   dist_start: 0 # Can be random number in a range
-  dist_interval: [200, 200]
+  dist_interval: 200
+  dist_size: 2
+  tasks:
+    task_0:
+      app: "app_0"
+      dependencies: []
+    task_1:
+      app: "app_1"
+      dependencies: [task_0]
+    task_2:
+      app: "app_0"
+      dependencies: [task_0]
+    task_3:
+      app: "app_1"
+      dependencies: [task_1, task_2]
+
+application_1:
+  dist: "fixed" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_interval: 200
+  dist_size: 2
   tasks:
     task_0:
       app: "app_0"

@@ -115,10 +115,12 @@ class Accelerator:
     def _generate_offchip_interface(self) -> OffchipInterface:
         """Return an offchip interface."""
         offchip_interface = OffchipInterface()
+        return offchip_interface
 
     def _generate_noc(self) -> NoC:
         """Return a NoC."""
-        pass
+        noc = NoC()
+        return noc
 
     @property
     def pr_available_mask(self) -> List[List[bool]]:

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Scheduler(ABC):
     def __init__(self, env: simpy.Environment) -> None:
         self.env = env
-        self.task_queue = TaskQueue(self.env)
+        self.task_queue = TaskQueue(self.env, maxsize=3)
         self.task_log: List[Task] = []
         self.app_pool: AppPool
 

@@ -2,6 +2,8 @@ name: amber_8x16x4
 num_glb_banks: 32
 num_pr_height: 1
 num_pr_width: 8
+offchip_bandwidth: 256
+noc_bandwidth: 256
 pr_flexible: False
 pr:
   height: 16

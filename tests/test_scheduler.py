@@ -1,7 +1,7 @@
 import pytest
 import simpy
 from lapidary.accelerator import Accelerator
-from lapidary.workload import Workload
+from lapidary.application import Application
 from lapidary.scheduler import GreedyScheduler
 from lapidary.app import AppPool, AppConfig
 from typing import List
@@ -31,7 +31,7 @@ def test_greedy_scheduler(task_interval: List[int], runtime: int):
     app_name = 'app_0'
     task = {'name': 'task_0', 'app': app_name, 'dist': 'manual', 'dist_start': 0, 'dist_interval': task_interval}
     workload = {'name': 'workload', 'tasks': [task]}
-    workload = Workload(env, workload)
+    workload = Application(env, workload)
 
     # Create app_pool
     app_pool = AppPool("app_pool")

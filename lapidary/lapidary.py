@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from lapidary.app import AppPool
 from lapidary.accelerator import Accelerator, AcceleratorConfigType
-from lapidary.workload import Workload
+from lapidary.application import Application
 from lapidary.scheduler import GreedyScheduler
 from typing import Optional, Union, Dict
 import logging
@@ -15,7 +15,7 @@ class Lapidary:
                  workload_config: Optional[Union[str, Dict]], app_pool: AppPool) -> None:
         # simpy environment
         self.env = simpy.Environment()
-        self.workload = Workload(self.env, workload_config)
+        self.workload = Application(self.env, workload_config)
         self.accelerator = Accelerator(self.env, accelerator_config)
         self.app_pool = app_pool
         self.scheduler = GreedyScheduler(self.env)

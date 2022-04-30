@@ -4,13 +4,19 @@ from typing import Union, List, Optional
 
 
 class TaskQueue:
-    def __init__(self, env: simpy.Environment) -> None:
+    def __init__(self, env: simpy.Environment, maxsize: int) -> None:
         self.env = env
         self.q: List[Task] = []
+        self.maxsize = maxsize
+        self.q_container = simpy.Container(self.env, init=0, capacity=self.maxsize)
         self.evt_task_arrive = self.env.event()
 
     def __getitem__(self, key: int) -> Task:
         return self.q[key]
+
+    @property
+    def size(self) -> int:
+        return len(self.q)
 
     def put(self, tasks: Union[Task, List[Task]]) -> None:
         if isinstance(tasks, Task):
@@ -22,6 +28,7 @@ class TaskQueue:
     def _put(self, task: Task) -> None:
         # Filter a duplicate task in the queue.
         if task not in self.q:
+            yield self.q_container.put(amount=1)
             self.q.append(task)
 
     def peek(self, idx: int = 0) -> Task:
@@ -39,9 +46,6 @@ class TaskQueue:
 
     def remove(self, task: Task) -> None:
         self.q.remove(task)
-
-    def size(self) -> int:
-        return len(self.q)
 
     def acknowledge_task_arrive(self) -> None:
         self.evt_task_arrive = self.env.event()

@@ -33,18 +33,14 @@ class Scheduler(ABC):
 class GreedyScheduler(Scheduler):
     def __init__(self, env: simpy.Environment) -> None:
         super().__init__(env)
-        self.task_queue = TaskQueue(self.env, maxsize=3)
-        self.schedule_delay = 10
+        self.task_queue = TaskQueue(self.env, maxsize=5)
+        self.schedule_delay = 0
 
     def proc_schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, simpy.events.ConditionValue,
                                                                    None]:
         """Call schedule function when new tasks arrive or old tasks finish."""
         while True:
-            triggered = yield accelerator.evt_task_done | self.task_queue.evt_task_arrive
-            if self.task_queue.evt_task_arrive in triggered:
-                task = triggered[self.task_queue.evt_task_arrive]
-                self.task_log.append(task)
-                self.task_queue.acknowledge_task_arrive()
+            triggered = yield self.task_queue.evt_task_arrive | accelerator.evt_task_done
             if accelerator.evt_task_done in triggered:
                 task = triggered[accelerator.evt_task_done]
                 self.task_queue.update_dependency(done=task)
@@ -60,7 +56,8 @@ class GreedyScheduler(Scheduler):
         tasks_scheduled = []
 
         # Search all tasks in the task queue
-        for task in self.task_queue.q:
+        q_tmp = self.task_queue.q.copy()
+        for task in q_tmp:
             # Skip the task if it still has dependencies
             if len(task.deps) != 0:
                 continue
@@ -87,12 +84,8 @@ class GreedyScheduler(Scheduler):
 
             # Set app_config for the task
             task.set_app_config(app_config)
-            logger.info(f"[@ {self.env.now}] {task.tag} is scheduled.")
             accelerator.execute(task, prs)
             task.ts_schedule = int(self.env.now)
             tasks_scheduled.append(task)
-
-        # Remove tasks that are scheduled from the queue
-        for task in tasks_scheduled:
+            logger.info(f"[@ {self.env.now}] {task.tag} is scheduled.")
             yield self.env.process(self.task_queue.remove(task))
-        

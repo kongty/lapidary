@@ -33,7 +33,7 @@ class Lapidary:
         with open(filename, 'w') as f:
             header = 'tag, ts_dispatch, ts_schedule, ts_done\n'
             f.write(header)
-            for task in self.scheduler.task_log:
+            for task in self.scheduler.task_queue.task_log:
                 log = task.tag + ", " + str(task.ts_dispatch) + ", " + \
                     str(task.ts_schedule) + ", " + str(task.ts_done) + "\n"
                 f.write(log)

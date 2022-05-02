@@ -1,4 +1,3 @@
-from re import A
 import pytest
 import simpy
 from lapidary.task_queue import TaskQueue
@@ -18,6 +17,7 @@ def test_task_queue_put(maxsize: int, num_tasks: int):
     env.run(until=100)
     assert task_queue.size == min(num_tasks, maxsize)
 
+
 def test_task_queue_block():
     env = simpy.Environment()
     maxsize = 2
@@ -28,7 +28,7 @@ def test_task_queue_block():
         tasks = yield env.process(task_queue.put(task))
         for task in tasks:
             log.append((task.name, env.now))
-    
+
     def acknowledge(env, task_queue):
         while True:
             yield task_queue.evt_task_arrive

@@ -56,19 +56,17 @@ class Query:
     def _generate_intervals(self) -> List[int]:
         """Generate an interval list."""
         if self.dist == "fixed":
-            intervals: List[int] = [cast(int, self.dist_interval) for _ in range(self.dist_size)]
-            if len(intervals) > 0:
-                intervals[0] += self.dist_start
+            intervals: List[int] = []
+            if self.dist_size > 0:
+                intervals = [self.dist_start] + [cast(int, self.dist_interval) for _ in range(self.dist_size - 1)]
             return intervals
         elif self.dist == "manual":
             intervals = cast(List[int], self.dist_interval)
-            if len(intervals) > 0:
-                intervals[0] += self.dist_start
             return intervals
         elif self.dist == "poisson":
-            intervals = list(np.random.poisson(self.dist_lambda, self.dist_size))
-            if len(intervals) > 0:
-                intervals[0] += self.dist_start
+            intervals: List[int] = []
+            if self.dist_size > 0:
+                intervals = [self.dist_start] + list(np.random.poisson(self.dist_lambda, self.dist_size - 1))
             return intervals
         else:
             error = f"The distribution '{self.dist}' is not supported. ['fixed', 'poission']"
@@ -80,13 +78,19 @@ class Query:
         for id, interval in enumerate(self._intervals):
             interval = max(interval, wait_time)
             yield self.env.timeout(interval)
-
             tasks = []
+            task_dict = {}
             for task_k, task_v in self.tasks.items():
                 task = Task(self.env, self.name, id, task_k, task_v['app'], task_v['dependencies'])
+                task_dict[task_k] = task
                 task.ts_dispatch = int(self.env.now)
                 tasks.append(task)
             tasks = self.task_topological_sort(tasks)
+            for task in tasks:
+                deps = []
+                for dep in task.deps:
+                    deps.append(task_dict[dep])
+                task.update_deps(deps)
             logger.info(f"[@ {self.env.now}] {self.name} #{id} is dispatched.")
             wait_start = self.env.now
             yield self.env.process(task_queue.put(tasks))
@@ -114,13 +118,13 @@ class Query:
             for i in adj_list[v]:
                 if visited[i] is False:
                     _topological_sort(i, visited, stack)
-            
+
             stack.append(v)
-        
+
         for i in range(num_v):
             if visited[i] is False:
                 _topological_sort(i, visited, stack)
-        
+
         result: List[Task] = []
         for i in stack:
             result.append(tasks[i])

@@ -1,6 +1,6 @@
 import simpy
 from lapidary.app import AppConfig
-from typing import Tuple, List, Generator
+from typing import Tuple, List, Generator, Dict
 from enum import Enum
 import logging
 logger = logging.getLogger(__name__)
@@ -47,3 +47,6 @@ class Task:
             raise Exception(f"app configuration is not set for {self.tag}")
         else:
             return self.app_config.pr_shape
+
+    def update_deps(self, deps: List['Task']):
+        self.deps = deps

@@ -1,12 +1,30 @@
-workload_1:
-  dist: "poisson" # manual or poisson or stream
+query_0:
+  dist: "fixed" # manual or fixed or poisson or stream
   dist_start: 0 # Can be random number in a range
-  dist_size: 10
-  dist_lambda: 300
+  dist_interval: 50
+  dist_size: 2
   tasks:
     task_0:
       app: "app_0"
       dependencies: []
     task_1:
-      app: "app_1"
-      dependencies: [task_0]
+      app: "app_0"
+      dependencies: []
+    task_2:
+      app: "app_0"
+      dependencies: []
+    task_3:
+      app: "app_0"
+      dependencies: []
+    task_4:
+      app: "app_0"
+      dependencies: []
+    task_5:
+      app: "app_0"
+      dependencies: []
+    task_6:
+      app: "app_0"
+      dependencies: []
+    task_7:
+      app: "app_0"
+      dependencies: []

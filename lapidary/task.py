@@ -13,18 +13,18 @@ class TaskStatus(Enum):
 
 
 class Task:
-    def __init__(self, env: simpy.Environment, workload_name: str, workload_id: int, task_name: str,
+    def __init__(self, env: simpy.Environment, query_name: str, query_id: int, task_name: str,
                  app: str, deps: List[str]) -> None:
         self.env = env
         self.name = task_name
-        self.workload_name = workload_name
-        self.workload_id = workload_id
+        self.query_name = query_name
+        self.query_id = query_id
         self.app = app
-        self.tag = f"{self.workload_name}_#{self.workload_id}_{self.name}_{self.app}"
+        self.tag = f"{self.query_name}_#{self.query_id}_{self.name}_{self.app}"
         self.status = TaskStatus.pending
         self.deps = deps
 
-        self.ts_generate: int = 0
+        self.ts_dispatch: int = 0
         self.ts_schedule: int = 0
         self.ts_done: int = 0
 

@@ -80,6 +80,7 @@ class Accelerator:
     def __init__(self, env: simpy.Environment, config: Optional[Union[str, AcceleratorConfigType]]) -> None:
         self.env = env
         self.config = AcceleratorConfig(config)
+        # self.execution_delay = 10
         self.offchip_interface = self._generate_offchip_interface()
         self.banks = self._generate_banks()
         self.noc = self._generate_noc()
@@ -91,6 +92,8 @@ class Accelerator:
 
         # task_done event
         self.evt_task_done = self.env.event()
+
+        self._controller = simpy.Resource(self.env, capacity=1)
 
     def _generate_prs(self) -> List[List[PartialRegion]]:
         """Return 2d-list of partial regions."""
@@ -142,9 +145,13 @@ class Accelerator:
 
     def proc_execute(self, task: Task, prs: List[PartialRegion]) -> Generator[simpy.events.Event, None, None]:
         """Start task execution process."""
+        # yield self.env.timeout(self.execution_delay)
         yield self.env.process(task.proc_execute())
-        self.deallocate(prs)
-        self.evt_task_done.succeed(value=task)
+        # Controller is a shared resource
+        with self._controller.request() as req:
+            yield req
+            self.deallocate(prs)
+            self.evt_task_done.succeed(value=task)
 
     def acknowledge_task_done(self) -> None:
         self.evt_task_done = self.env.event()

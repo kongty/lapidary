@@ -12,9 +12,8 @@ logger = logging.getLogger(__name__)
 class Scheduler(ABC):
     def __init__(self, env: simpy.Environment) -> None:
         self.env = env
-        self.task_queue = TaskQueue(self.env, maxsize=3)
-        self.task_log: List[Task] = []
         self.app_pool: AppPool
+        self.task_log: List[Task] = []
 
     def set_app_pool(self, app_pool: AppPool) -> None:
         self.app_pool = app_pool
@@ -27,30 +26,36 @@ class Scheduler(ABC):
         pass
 
     @abstractmethod
-    def schedule(self, accelerator: Accelerator) -> None:
+    def schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, None, None]:
         pass
 
 
 class GreedyScheduler(Scheduler):
     def __init__(self, env: simpy.Environment) -> None:
         super().__init__(env)
+        self.task_queue = TaskQueue(self.env, maxsize=3)
+        self.schedule_delay = 10
 
     def proc_schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, simpy.events.ConditionValue,
                                                                    None]:
         """Call schedule function when new tasks arrive or old tasks finish."""
         while True:
-            triggered = yield self.task_queue.evt_task_arrive | accelerator.evt_task_done
+            triggered = yield accelerator.evt_task_done | self.task_queue.evt_task_arrive
             if self.task_queue.evt_task_arrive in triggered:
-                self.task_log.extend(triggered[self.task_queue.evt_task_arrive])
+                task = triggered[self.task_queue.evt_task_arrive]
+                self.task_log.append(task)
                 self.task_queue.acknowledge_task_arrive()
             if accelerator.evt_task_done in triggered:
                 task = triggered[accelerator.evt_task_done]
                 self.task_queue.update_dependency(done=task)
                 accelerator.acknowledge_task_done()
-            self.schedule(accelerator)
+            yield self.env.process(self.schedule(accelerator))
 
-    def schedule(self, accelerator: Accelerator) -> None:
+    def schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, None, None]:
         """Schedule tasks on the accelerator and return a list of tasks that are scheduled."""
+        # schedule delay
+        yield self.env.timeout(self.schedule_delay)
+
         # list of tasks that are scheduled
         tasks_scheduled = []
 
@@ -89,4 +94,5 @@ class GreedyScheduler(Scheduler):
 
         # Remove tasks that are scheduled from the queue
         for task in tasks_scheduled:
-            self.task_queue.remove(task)
+            yield self.env.process(self.task_queue.remove(task))
+        

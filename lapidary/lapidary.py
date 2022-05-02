@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from lapidary.app import AppPool
 from lapidary.accelerator import Accelerator, AcceleratorConfigType
-from lapidary.application import Application
+from lapidary.workload import Workload
 from lapidary.scheduler import GreedyScheduler
 from typing import Optional, Union, Dict
 import logging
@@ -15,7 +15,7 @@ class Lapidary:
                  workload_config: Optional[Union[str, Dict]], app_pool: AppPool) -> None:
         # simpy environment
         self.env = simpy.Environment()
-        self.workload = Application(self.env, workload_config)
+        self.workload = Workload(self.env, workload_config)
         self.accelerator = Accelerator(self.env, accelerator_config)
         self.app_pool = app_pool
         self.scheduler = GreedyScheduler(self.env)
@@ -31,10 +31,10 @@ class Lapidary:
         filename = os.path.realpath(filename)
         Path(os.path.dirname(filename)).mkdir(parents=True, exist_ok=True)
         with open(filename, 'w') as f:
-            header = 'tag, ts_generate, ts_schedule, ts_done\n'
+            header = 'tag, ts_dispatch, ts_schedule, ts_done\n'
             f.write(header)
             for task in self.scheduler.task_log:
-                log = task.tag + ", " + str(task.ts_generate) + ", " + \
+                log = task.tag + ", " + str(task.ts_dispatch) + ", " + \
                     str(task.ts_schedule) + ", " + str(task.ts_done) + "\n"
                 f.write(log)
         logger.info(f"A log file was generated: {filename}")

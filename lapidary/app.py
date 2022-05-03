@@ -5,12 +5,12 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class AppConfig:
-    pr_shape: Tuple[int, int]
-    pe: int
-    mem: int
-    input: int
-    output: int
-    runtime: int
+    pr_shape: Tuple[int, int] = (0, 0)
+    pe: int = 0
+    mem: int = 0
+    input: int = 0
+    output: int = 0
+    runtime: int = 0
 
 
 class AppPool:

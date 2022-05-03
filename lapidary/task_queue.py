@@ -45,7 +45,6 @@ class TaskQueue:
                 tasks_added.append(task)
                 # If a queue is full, notify scheduler a scheduler
                 if self.full:
-                    logger.info(f"[@ {self.env.now}] Task queue is full.")
                     self.evt_task_arrive.succeed(value=tasks_added)
                     self.evt_task_arrive = self.env.event()
                     tasks_added = []
@@ -86,10 +85,6 @@ class TaskQueue:
         self.q.remove(task)
         self.task_removed.append(task)
         yield self.env.process(self._get())
-
-    def acknowledge_task_arrive(self) -> None:
-        self.evt_task_arrive = self.env.event()
-        logger.info(f"[@ {self.env.now}] Acknowledge a task queue.")
 
     def update_dependency(self, done: Task) -> None:
         for task in self.q:

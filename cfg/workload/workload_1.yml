@@ -1,30 +1,72 @@
 query_0:
-  dist: "fixed" # manual or fixed or poisson or stream
+  dist: "poisson" # manual or fixed or poisson or stream
   dist_start: 0 # Can be random number in a range
-  dist_interval: 50
-  dist_size: 2
+  dist_lambda: 50
+  dist_size: 10
   tasks:
     task_0:
       app: "app_0"
       dependencies: []
-    task_1:
+query_1:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 50
+  dist_size: 10
+  tasks:
+    task_0:
       app: "app_0"
       dependencies: []
-    task_2:
+query_2:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 50
+  dist_size: 10
+  tasks:
+    task_0:
       app: "app_0"
       dependencies: []
-    task_3:
+query_3:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 50
+  dist_size: 10
+  tasks:
+    task_0:
       app: "app_0"
       dependencies: []
-    task_4:
+query_4:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 50
+  dist_size: 10
+  tasks:
+    task_0:
       app: "app_0"
       dependencies: []
-    task_5:
+query_5:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 50
+  dist_size: 10
+  tasks:
+    task_0:
       app: "app_0"
       dependencies: []
-    task_6:
+query_6:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 50
+  dist_size: 10
+  tasks:
+    task_0:
       app: "app_0"
       dependencies: []
-    task_7:
+query_7:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 50
+  dist_size: 10
+  tasks:
+    task_0:
       app: "app_0"
       dependencies: []

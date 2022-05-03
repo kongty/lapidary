@@ -29,11 +29,6 @@ def test_task_queue_block():
         for task in tasks:
             log.append((task.name, env.now))
 
-    def acknowledge(env, task_queue):
-        while True:
-            yield task_queue.evt_task_arrive
-            task_queue.acknowledge_task_arrive()
-
     def get(env, task_queue):
         yield env.timeout(5)
         yield env.process(task_queue.get())
@@ -42,7 +37,6 @@ def test_task_queue_block():
         task = Task(env, query_name='query', query_id=0, task_name=i, app='app', deps=[])
         env.process(put(env, task_queue, task, log))
 
-    env.process(acknowledge(env, task_queue))
     env.process(get(env, task_queue))
     env.run()
 

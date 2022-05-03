@@ -202,6 +202,8 @@ class Accelerator:
                     if is_available:
                         found = True
                         break
+                if found is True:
+                    break
 
             if found is False:
                 return []

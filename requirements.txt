@@ -1,13 +1,14 @@
+# Packages for functionality
 numpy==1.22.3
 PyYAML==6.0
 simpy==4.0.1
 
-# I ALWAYS use linter and type hint.
-# For lint and type hint
+# I ALWAYS use linter and type hint
+# Packages for lint and type hint
 autopep8==1.6.0
 pycodestyle==2.8.0
 mypy==0.950
 types-PyYAML==6.0.7
 
-# For unit test
+# Packages for unit test
 pytest==7.1.1

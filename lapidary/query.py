@@ -71,7 +71,8 @@ class Query:
             error = f"The distribution '{self.dist}' is not supported. ['fixed', 'poission']"
             raise Exception(error)
 
-    def dispatch(self, task_queue: TaskQueue, task_logger: Optional[List[Task]] = None) -> Generator[simpy.events.Event, None, None]:
+    def dispatch(self, task_queue: TaskQueue, task_logger: Optional[List[Task]] = None) -> Generator[simpy.events.Event,
+                                                                                                     None, None]:
         """Generate tasks and put it in a task queue."""
         wait_time = 0
         for id, interval in enumerate(self._intervals):

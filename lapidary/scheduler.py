@@ -1,10 +1,9 @@
 import simpy
 from abc import ABC, abstractmethod
-from typing import List, Generator, Any
+from typing import Generator, Any
 from lapidary.accelerator import Accelerator
 from lapidary.task_queue import TaskQueue
 from lapidary.app import AppPool
-from lapidary.task import Task
 import logging
 logger = logging.getLogger(__name__)
 

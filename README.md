@@ -1,4 +1,4 @@
-# **Lapidary**: CGRA Simulator for Multi-tenancy ![Continuous Integration](https://github.com/kongty/lapidary/actions/workflows//continuous-integration.yml/badge.svg)
+# **Lapidary**: CGRA Simulator for Multi-Tenant Workload ![Continuous Integration](https://github.com/kongty/lapidary/actions/workflows//continuous-integration.yml/badge.svg)
 
 ## What is Lapidary?
 

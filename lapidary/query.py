@@ -55,8 +55,8 @@ class Query:
 
     def _generate_intervals(self) -> List[int]:
         """Generate an interval list."""
+        intervals: List[int] = []
         if self.dist == "fixed":
-            intervals: List[int] = []
             if self.dist_size > 0:
                 intervals = [self.dist_start] + [cast(int, self.dist_interval) for _ in range(self.dist_size - 1)]
             return intervals
@@ -64,7 +64,6 @@ class Query:
             intervals = cast(List[int], self.dist_interval)
             return intervals
         elif self.dist == "poisson":
-            intervals: List[int] = []
             if self.dist_size > 0:
                 intervals = [self.dist_start] + list(np.random.poisson(self.dist_lambda, self.dist_size - 1))
             return intervals
@@ -80,12 +79,14 @@ class Query:
             yield self.env.timeout(interval)
             tasks = []
             task_dict = {}
+            task_dep_dict = {}
             for task_k, task_v in self.tasks.items():
-                task = Task(self.env, self.name, id, task_k, task_v['app'], task_v['dependencies'])
+                task = Task(self.env, self.name, id, task_k, task_v['app'], [])
                 task_dict[task_k] = task
                 task.ts_dispatch = int(self.env.now)
                 tasks.append(task)
             tasks = self.task_topological_sort(tasks)
+            task_v['dependencies']
             for task in tasks:
                 deps = []
                 for dep in task.deps:
@@ -99,7 +100,7 @@ class Query:
             if wait_time > 0:
                 logger.info(f"[@ {self.name} #{id} has been blocked for {wait_time}.")
 
-    def task_topological_sort(self, tasks: List[Task]) -> List[Task]:
+    def task_topological_sort(self, tasks: Dict[str, List[str]]) -> List[str]:
         index_dict = {}
         for i, task in enumerate(tasks):
             index_dict[task.name] = i

@@ -21,8 +21,8 @@ class PRConfigType(TypedDict):
 class AcceleratorConfigType(TypedDict):
     name: str
     num_glb_banks: int
+    num_pr_height: int
     num_pr_width: int
-    pr_flexible: bool
     pr: PRConfigType
 
 

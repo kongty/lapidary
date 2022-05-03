@@ -14,7 +14,7 @@ class TaskStatus(Enum):
 
 class Task:
     def __init__(self, env: simpy.Environment, query_name: str, query_id: int, task_name: str,
-                 app: str, deps: List[str]) -> None:
+                 app: str, deps: List['Task']) -> None:
         self.env = env
         self.name = task_name
         self.query_name = query_name

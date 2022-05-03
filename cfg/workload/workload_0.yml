@@ -6,16 +6,16 @@ query_0:
   tasks:
     task_0:
       app: "app_1"
-      dependencies: [task_1, task_3]
+      dependencies: []
     task_1:
       app: "app_0"
-      dependencies: [task_3]
+      dependencies: []
     task_2:
       app: "app_1"
       dependencies: [task_0]
     task_3:
       app: "app_0"
-      dependencies: []
+      dependencies: [task_1]
 
 query_1:
   dist: "fixed" # manual or fixed or poisson or stream

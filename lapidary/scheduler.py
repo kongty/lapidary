@@ -13,7 +13,6 @@ class Scheduler(ABC):
     def __init__(self, env: simpy.Environment) -> None:
         self.env = env
         self.app_pool: AppPool
-        self.task_log: List[Task] = []
 
     def set_app_pool(self, app_pool: AppPool) -> None:
         self.app_pool = app_pool
@@ -33,8 +32,8 @@ class Scheduler(ABC):
 class GreedyScheduler(Scheduler):
     def __init__(self, env: simpy.Environment) -> None:
         super().__init__(env)
-        self.task_queue = TaskQueue(self.env, maxsize=5)
-        self.schedule_delay = 0
+        self.task_queue = TaskQueue(self.env, maxsize=7)
+        self.schedule_delay = 5
 
     def proc_schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, simpy.events.ConditionValue,
                                                                    None]:

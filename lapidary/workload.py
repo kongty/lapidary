@@ -4,6 +4,7 @@ import yaml
 from typing import Dict, Optional, Union, List
 from lapidary.query import Query, QueryConfigType
 from lapidary.task_queue import TaskQueue
+from lapidary.task import Task
 import logging
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class Workload:
         for app_k, app_v in config_dict.items():
             self.queries.append(Query(self.env, app_k, app_v))
 
-    def run_dispatch(self, task_queue: TaskQueue) -> None:
+    def run_dispatch(self, task_queue: TaskQueue, task_logger: List[Task]) -> None:
         """Run dispatch proccess of the queries."""
         for query in self.queries:
-            self.env.process(query.dispatch(task_queue))
+            self.env.process(query.dispatch(task_queue, task_logger))

@@ -71,27 +71,25 @@ class Query:
             error = f"The distribution '{self.dist}' is not supported. ['fixed', 'poission']"
             raise Exception(error)
 
-    def dispatch(self, task_queue: TaskQueue) -> Generator[simpy.events.Event, None, None]:
+    def dispatch(self, task_queue: TaskQueue, task_logger: Optional[List[Task]] = None) -> Generator[simpy.events.Event, None, None]:
         """Generate tasks and put it in a task queue."""
         wait_time = 0
         for id, interval in enumerate(self._intervals):
+            # TODO:
+            # If a query is blocked longer than its predetermined interval, dispatch right away.
             interval = max(interval, wait_time)
             yield self.env.timeout(interval)
             tasks = []
             task_dict = {}
-            task_dep_dict = {}
+            # Create tasks
             for task_k, task_v in self.tasks.items():
-                task = Task(self.env, self.name, id, task_k, task_v['app'], [])
-                task_dict[task_k] = task
+                task = Task(self.env, self.name, id, task_k, task_v['app'], task_v['dependencies'])
+                if task_logger is not None:
+                    task_logger.append(task)
                 task.ts_dispatch = int(self.env.now)
+                task_dict[task_k] = task
                 tasks.append(task)
             tasks = self.task_topological_sort(tasks)
-            task_v['dependencies']
-            for task in tasks:
-                deps = []
-                for dep in task.deps:
-                    deps.append(task_dict[dep])
-                task.update_deps(deps)
             logger.info(f"[@ {self.env.now}] {self.name} #{id} is dispatched.")
             wait_start = self.env.now
             yield self.env.process(task_queue.put(tasks))
@@ -100,7 +98,7 @@ class Query:
             if wait_time > 0:
                 logger.info(f"[@ {self.name} #{id} has been blocked for {wait_time}.")
 
-    def task_topological_sort(self, tasks: Dict[str, List[str]]) -> List[str]:
+    def task_topological_sort(self, tasks: List[Task]) -> List[Task]:
         index_dict = {}
         for i, task in enumerate(tasks):
             index_dict[task.name] = i

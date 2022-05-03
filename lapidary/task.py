@@ -14,17 +14,18 @@ class TaskStatus(Enum):
 
 class Task:
     def __init__(self, env: simpy.Environment, query_name: str, query_id: int, task_name: str,
-                 app: str, deps: List['Task']) -> None:
+                 app: str, deps: List[str]) -> None:
         self.env = env
         self.name = task_name
         self.query_name = query_name
         self.query_id = query_id
         self.app = app
-        self.tag = f"{self.query_name}_#{self.query_id}_{self.name}_{self.app}"
+        self.tag = f"{self.query_name}_#{self.query_id}_{self.name}"
         self.status = TaskStatus.pending
         self.deps = deps
 
         self.ts_dispatch: int = 0
+        self.ts_queue: int = 0
         self.ts_schedule: int = 0
         self.ts_done: int = 0
 
@@ -48,5 +49,5 @@ class Task:
         else:
             return self.app_config.pr_shape
 
-    def update_deps(self, deps: List['Task']):
+    def update_deps(self, deps: List[str]):
         self.deps = deps

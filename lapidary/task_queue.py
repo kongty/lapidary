@@ -12,8 +12,8 @@ class TaskQueue:
         self.maxsize = maxsize
         self._q = simpy.Container(self.env, init=0, capacity=self.maxsize)  # simpy container
         self.evt_task_arrive = self.env.event()
+        self.evt_task_arrive_ack = self.env.event()
 
-        self.task_log: List[Task] = []
         self.task_removed: List[Task] = []
         self._controller = simpy.Resource(self.env, capacity=1)
 
@@ -33,34 +33,24 @@ class TaskQueue:
             yield req
             if isinstance(tasks, Task):
                 tasks = [tasks]
-            tasks_added = []
+            if len(tasks) > self.maxsize:
+                raise Exception(f"A task queue size must be equal to or bigger than {len(tasks)}.")
+            yield self._q.put(amount=len(tasks))
             for task in tasks:
-                deps = []
-                for dep in task.deps:
-                    if dep not in self.task_removed:
-                        deps.append(dep)
-                task.update_deps(deps)
+                self.q.append(task)
+                task.ts_queue = int(self.env.now)
+                logger.info(f"[@ {self.env.now}] {task.tag} is added to a queue.")
 
-                yield self.env.process(self._put(task))
-                tasks_added.append(task)
-                # If a queue is full, notify scheduler a scheduler
-                if self.full:
-                    self.evt_task_arrive.succeed(value=tasks_added)
-                    self.evt_task_arrive = self.env.event()
-                    tasks_added = []
-            if tasks_added:
-                self.evt_task_arrive.succeed(value=tasks_added)
-                self.evt_task_arrive = self.env.event()
+            self.evt_task_arrive.succeed(value=tasks)
+            self.evt_task_arrive = self.env.event()
+            # yield self.evt_task_arrive_ack
+            # self.evt_task_arrive_ack = self.env.event()
 
             return tasks
 
-    def _put(self, task: Task) -> Generator[simpy.events.Event, None, None]:
-        # Filter a duplicate task in the queue.
-        if task not in self.q:
-            yield self._q.put(amount=1)
-            self.q.append(task)
-            self.task_log.append(task)
-            logger.info(f"[@ {self.env.now}] {task.tag} is added to a queue.")
+    # def acknowledge_task_arrive(self) -> None:
+    #     self.evt_task_arrive = self.env.event()
+    #     self.evt_task_arrive_ack.succeed()
 
     def peek(self, idx: int = 0) -> Task:
         return self.q[idx]
@@ -88,5 +78,7 @@ class TaskQueue:
 
     def update_dependency(self, done: Task) -> None:
         for task in self.q:
-            if done in task.deps:
-                task.deps.remove(done)
+            if (done.name in task.deps
+                and task.query_name == done.query_name
+                    and task.query_id == done.query_id):
+                task.deps.remove(done.name)

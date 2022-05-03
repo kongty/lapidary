@@ -43,14 +43,8 @@ class TaskQueue:
 
             self.evt_task_arrive.succeed(value=tasks)
             self.evt_task_arrive = self.env.event()
-            # yield self.evt_task_arrive_ack
-            # self.evt_task_arrive_ack = self.env.event()
 
             return tasks
-
-    # def acknowledge_task_arrive(self) -> None:
-    #     self.evt_task_arrive = self.env.event()
-    #     self.evt_task_arrive_ack.succeed()
 
     def peek(self, idx: int = 0) -> Task:
         return self.q[idx]

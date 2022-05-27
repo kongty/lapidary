@@ -39,6 +39,7 @@ class GreedyScheduler(Scheduler):
         """Call schedule function when new tasks arrive or old tasks finish."""
         while True:
             triggered = yield self.task_queue.evt_task_arrive | accelerator.evt_task_done
+            logger.info(f"[@ {self.env.now}] Call schedule.")
             if accelerator.evt_task_done in triggered:
                 task = triggered[accelerator.evt_task_done]
                 self.task_queue.update_dependency(done=task)
@@ -47,9 +48,6 @@ class GreedyScheduler(Scheduler):
 
     def schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, None, None]:
         """Schedule tasks on the accelerator and return a list of tasks that are scheduled."""
-        # schedule delay
-        yield self.env.timeout(self.schedule_delay)
-
         # list of tasks that are scheduled
         tasks_scheduled = []
 
@@ -86,4 +84,8 @@ class GreedyScheduler(Scheduler):
             task.ts_schedule = int(self.env.now)
             tasks_scheduled.append(task)
             logger.info(f"[@ {self.env.now}] {task.tag} is scheduled.")
+
+        # schedule delay
+        # yield self.env.timeout(self.schedule_delay)
+        for task in tasks_scheduled:
             yield self.env.process(self.task_queue.remove(task))

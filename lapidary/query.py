@@ -76,7 +76,6 @@ class Query:
         """Generate tasks and put it in a task queue."""
         wait_time = 0
         for id, interval in enumerate(self._intervals):
-            # TODO:
             # If a query is blocked longer than its predetermined interval, dispatch right away.
             interval = max(interval, wait_time)
             yield self.env.timeout(interval)

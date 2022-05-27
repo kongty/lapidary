@@ -22,6 +22,7 @@ class Lapidary:
         self.scheduler = GreedyScheduler(self.env)
         self.scheduler.set_app_pool(self.app_pool)
         self.task_logger: List[Task] = []
+        self.set_interface()
 
     def run(self, until: int) -> None:
         """Dispatch workload, start scheduler, and run simpy simulation."""

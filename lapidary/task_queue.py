@@ -15,7 +15,6 @@ class TaskQueue:
         self.evt_task_arrive_ack = self.env.event()
 
         self.task_removed: List[Task] = []
-        self._controller = simpy.Resource(self.env, capacity=1)
 
     def __getitem__(self, key: int) -> Task:
         return self.q[key]
@@ -29,22 +28,20 @@ class TaskQueue:
         return self.maxsize == len(self.q)
 
     def put(self, tasks: Union[Task, List[Task]]) -> Generator[simpy.events.Event, None, List[Task]]:
-        with self._controller.request() as req:
-            yield req
-            if isinstance(tasks, Task):
-                tasks = [tasks]
-            if len(tasks) > self.maxsize:
-                raise Exception(f"A task queue size must be equal to or bigger than {len(tasks)}.")
-            yield self._q.put(amount=len(tasks))
-            for task in tasks:
-                self.q.append(task)
-                task.ts_queue = int(self.env.now)
-                logger.info(f"[@ {self.env.now}] {task.tag} is added to a queue.")
+        if isinstance(tasks, Task):
+            tasks = [tasks]
+        if len(tasks) > self.maxsize:
+            raise Exception(f"A task queue size must be equal to or bigger than {len(tasks)}.")
+        yield self._q.put(amount=len(tasks))
+        for task in tasks:
+            self.q.append(task)
+            task.ts_queue = int(self.env.now)
+            logger.info(f"[@ {self.env.now}] {task.tag} is added to a queue.")
 
-            self.evt_task_arrive.succeed(value=tasks)
-            self.evt_task_arrive = self.env.event()
+        self.evt_task_arrive.succeed(value=tasks)
+        self.evt_task_arrive = self.env.event()
 
-            return tasks
+        return tasks
 
     def peek(self, idx: int = 0) -> Task:
         return self.q[idx]

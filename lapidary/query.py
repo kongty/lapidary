@@ -35,6 +35,7 @@ class Query:
         if config is not None:
             self.set_query(config)
         self._intervals = self._generate_intervals()
+        self.task_queue: TaskQueue
 
     def set_query(self, config: QueryConfigType) -> None:
         """Set query properties with input configuration file."""
@@ -52,6 +53,10 @@ class Query:
         for task in self.tasks.values():
             if 'dependencies' not in task:
                 task['dependencies'] = []
+
+    def set_task_queue(self, task_queue: TaskQueue) -> None:
+        """Set a task_queue for each query."""
+        self.task_queue = task_queue
 
     def _generate_intervals(self) -> List[int]:
         """Generate an interval list."""
@@ -71,8 +76,7 @@ class Query:
             error = f"The distribution '{self.dist}' is not supported. ['fixed', 'poission']"
             raise Exception(error)
 
-    def dispatch(self, task_queue: TaskQueue, task_logger: Optional[List[Task]] = None) -> Generator[simpy.events.Event,
-                                                                                                     None, None]:
+    def dispatch(self, task_logger: Optional[List[Task]] = None) -> Generator[simpy.events.Event, None, None]:
         """Generate tasks and put it in a task queue."""
         wait_time = 0
         for id, interval in enumerate(self._intervals):
@@ -92,7 +96,7 @@ class Query:
             tasks = self.task_topological_sort(tasks)
             logger.info(f"[@ {self.env.now}] {self.name} #{id} is dispatched.")
             wait_start = self.env.now
-            yield self.env.process(task_queue.put(tasks))
+            yield self.env.process(self.task_queue.put(tasks))
             wait_end = self.env.now
             wait_time = int(wait_end) - int(wait_start)
             if wait_time > 0:

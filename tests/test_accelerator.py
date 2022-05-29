@@ -8,9 +8,9 @@ accelerator_config = AcceleratorConfigType(
     {
         'name': 'accelerator',
         'num_glb_banks': 32,
-        'num_pr_height': 4,
-        'num_pr_width': 4,
-        'pr': {
+        'num_prr_height': 4,
+        'num_prr_width': 4,
+        'prr': {
             'height': 8,
             'width': 8,
             'num_input': 4,
@@ -26,14 +26,14 @@ def test_accelerator_map(shape: Tuple[int, int]):
     accelerator = Accelerator(env, accelerator_config)
 
     width, height = shape
-    app_config = AppConfig(pr_shape=(width, height))
-    prs = accelerator.map(app_config)
-    assert len(prs) == width * height
+    app_config = AppConfig(prr_shape=(width, height))
+    prrs = accelerator.map(app_config)
+    assert len(prrs) == width * height
 
     idx = 0
     for j in range(width):
         for i in range(height):
-            assert prs[idx].id == (i, j)
+            assert prrs[idx].id == (i, j)
             idx += 1
 
 

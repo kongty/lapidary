@@ -26,7 +26,7 @@ class Lapidary:
 
     def run(self, until: int) -> None:
         """Dispatch workload, start scheduler, and run simpy simulation."""
-        self.workload.run_dispatch(self.scheduler.task_queue, self.task_logger)
+        self.workload.run_dispatch(self.task_logger)
         self.scheduler.run(self.accelerator)
         self.env.run(until=until)
 
@@ -44,3 +44,6 @@ class Lapidary:
                 log += f"{task.ts_done}\n"
                 f.write(log)
         logger.info(f"A log file was generated: {filename}")
+
+    def set_interface(self) -> None:
+        self.workload.set_task_queue(self.scheduler.task_queue)

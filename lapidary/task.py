@@ -1,6 +1,9 @@
+from __future__ import annotations
 import simpy
 from lapidary.app import AppConfig
-from typing import Tuple, List, Generator, Dict
+from typing import TYPE_CHECKING, Tuple, List, Generator
+if TYPE_CHECKING:
+    from lapidary.components import PRR
 from enum import Enum
 import logging
 logger = logging.getLogger(__name__)
@@ -28,6 +31,7 @@ class Task:
         self.ts_queue: int = 0
         self.ts_schedule: int = 0
         self.ts_done: int = 0
+        self.prrs: List[PRR] = []
 
         self.app_config: AppConfig
 
@@ -35,19 +39,15 @@ class Task:
         """Set app configuration."""
         self.app_config = app_config
 
-    def proc_execute(self) -> Generator[simpy.events.Event, None, None]:
-        """Yield for runtime period."""
-        logger.info(f"[@ {self.env.now}] {self.tag} execution starts.")
-        yield self.env.timeout(self.app_config.runtime)
-        logger.info(f"[@ {self.env.now}] {self.tag} execution finishes.")
-        self.ts_done = int(self.env.now)
-
     def get_pr_shape(self) -> Tuple[int, int]:
         """Return partial region shape."""
         if self.app_config is None:
             raise Exception(f"app configuration is not set for {self.tag}")
         else:
-            return self.app_config.pr_shape
+            return self.app_config.prr_shape
 
     def update_deps(self, deps: List[str]):
         self.deps = deps
+
+    def set_prrs(self, prrs: List[PRR]) -> None:
+        self.prrs = prrs

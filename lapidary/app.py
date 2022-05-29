@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class AppConfig:
-    pr_shape: Tuple[int, int] = (0, 0)
+    prr_shape: Tuple[int, int] = (0, 0)
     pe: int = 0
     mem: int = 0
     input: int = 0
@@ -23,3 +23,7 @@ class AppPool:
 
     def get(self, app: str) -> List[AppConfig]:
         return self.app_pool[app]
+
+
+class NoAppConfigError(Exception):
+    pass

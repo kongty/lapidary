@@ -1,9 +1,10 @@
 import simpy
 from abc import ABC, abstractmethod
-from typing import Generator, Any
+from typing import Generator, Any, List
 from lapidary.accelerator import Accelerator
 from lapidary.task_queue import TaskQueue
-from lapidary.app import AppPool
+from lapidary.task import Task
+from lapidary.app import AppPool, NoAppConfigError
 import logging
 logger = logging.getLogger(__name__)
 
@@ -39,53 +40,59 @@ class GreedyScheduler(Scheduler):
         """Call schedule function when new tasks arrive or old tasks finish."""
         while True:
             triggered = yield self.task_queue.evt_task_arrive | accelerator.evt_task_done
-            logger.info(f"[@ {self.env.now}] Call schedule.")
             if accelerator.evt_task_done in triggered:
-                task = triggered[accelerator.evt_task_done]
+                task, interrupt = triggered[accelerator.evt_task_done]
                 self.task_queue.update_dependency(done=task)
-                accelerator.acknowledge_task_done()
+                accelerator.acknowledge_task_done(interrupt)
             yield self.env.process(self.schedule(accelerator))
 
     def schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, None, None]:
         """Schedule tasks on the accelerator and return a list of tasks that are scheduled."""
+        logger.info(f"[@ {self.env.now}] Call schedule.")
+        tasks = self.select_tasks_prrs(accelerator=accelerator)
+        logger.info(f"[@ {self.env.now}] Number of tasks being scheduled: {len(tasks)}")
+        # schedule delay
+        yield self.env.timeout(self.schedule_delay)
+
+        for task in tasks:
+            logger.info(f"[@ {self.env.now}] {task.tag} is scheduled.")
+            yield self.env.process(self.task_queue.remove(task))
+            task.ts_schedule = int(self.env.now)
+            accelerator.execute(task)
+
+    def select_tasks_prrs(self, accelerator: Accelerator) -> List[Task]:
         # list of tasks that are scheduled
-        tasks_scheduled = []
+        tasks = []
 
         # Search all tasks in the task queue
         q_tmp = self.task_queue.q.copy()
         for task in q_tmp:
-            # Skip the task if it still has dependencies
+            # Break if the task cannot be mapped.
             if len(task.deps) != 0:
-                continue
+                break
 
             # Get app_config candidates from an app_pool
             app_config_list = self.app_pool.get(task.app)
-            # Skip the task if there is no possible app config
+            # Raise an error if there is no possible app config
             if len(app_config_list) == 0:
-                logger.warning(f"There is no app_config for {task.app} in the app_pool.")
-                continue
+                raise NoAppConfigError(f"There is no app_config for {task.app} in the app_pool.")
 
             # TODO: Optimize by choosing the best bitstream from the app_pool.
             # For now, we just use the first available app_config from the app_pool.
             is_mapped = False
             for app_config in app_config_list:
-                prs = accelerator.map(app_config)
-                if len(prs) > 0:
+                prrs = accelerator.map(app_config)
+                if len(prrs) > 0:
                     is_mapped = True
                     break
 
-            # Skip the task if any app_config is not mappable
+            # Break if any app_config is not mappable
             if is_mapped is False:
-                continue
+                break
 
             # Set app_config for the task
             task.set_app_config(app_config)
-            accelerator.execute(task, prs)
-            task.ts_schedule = int(self.env.now)
-            tasks_scheduled.append(task)
-            logger.info(f"[@ {self.env.now}] {task.tag} is scheduled.")
+            accelerator.allocate(task, prrs)
+            tasks.append(task)
 
-        # schedule delay
-        # yield self.env.timeout(self.schedule_delay)
-        for task in tasks_scheduled:
-            yield self.env.process(self.task_queue.remove(task))
+        return tasks

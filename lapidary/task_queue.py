@@ -15,6 +15,7 @@ class TaskQueue:
         self.evt_task_arrive_ack = self.env.event()
 
         self.task_removed: List[Task] = []
+        self._controller = simpy.Resource(self.env, capacity=1)
 
     def __getitem__(self, key: int) -> Task:
         return self.q[key]

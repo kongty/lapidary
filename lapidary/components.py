@@ -1,6 +1,8 @@
+from __future__ import annotations
 from dataclasses import dataclass
-from lapidary.task import Task
-from typing import Optional, Tuple
+from typing import TYPE_CHECKING, Optional, Tuple
+if TYPE_CHECKING:
+    from lapidary.task import Task
 from enum import Enum
 
 
@@ -11,7 +13,7 @@ class ComponentStatus(Enum):
 
 
 @dataclass
-class PartialRegion:
+class PRR:
     id: Tuple[int, int] = (0, 0)
     status: ComponentStatus = ComponentStatus.idle
     task: Optional[Task] = None

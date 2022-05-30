@@ -101,7 +101,8 @@ class Accelerator:
                                  for _ in range(self.config.num_prr_height)]
         for y in range(self.config.num_prr_height):
             for x in range(self.config.num_prr_width):
-                prrs[y][x] = PRR(id=(x, y),
+                prrs[y][x] = PRR(id=(y*self.config.num_prr_width + x),
+                                 coord=(x, y),
                                  status=ComponentStatus.idle,
                                  task=None,
                                  height=self.config.prr_height,

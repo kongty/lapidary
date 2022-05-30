@@ -32,9 +32,9 @@ accelerator_config = AcceleratorConfigType(
     }
 )
 
-task_log = """tag,query,query_id,task,ts_dispatch,ts_queue,ts_schedule,ts_done,prr
-query_0_#0_task_0,query_0,0,task_0,0,0,5,105,[(0, 0)]
-query_1_#0_task_0,query_1,0,task_0,0,0,5,105,[(1, 0)]
-query_2_#0_task_0,query_2,0,task_0,0,0,5,105,[(2, 0)]
-query_3_#0_task_0,query_3,0,task_0,0,0,5,105,[(3, 0)]
+task_log = """tag,query,query_id,task,ts_dispatch,ts_queue,ts_schedule,ts_done,prr0,prr1,prr2,prr3
+query_0_#0_task_0,query_0,0,task_0,0,0,5,105,1,0,0,0
+query_1_#0_task_0,query_1,0,task_0,0,0,5,105,0,1,0,0
+query_2_#0_task_0,query_2,0,task_0,0,0,5,105,0,0,1,0
+query_3_#0_task_0,query_3,0,task_0,0,0,5,105,0,0,0,1
 """

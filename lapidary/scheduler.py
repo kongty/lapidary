@@ -55,7 +55,7 @@ class GreedyScheduler(Scheduler):
         yield self.env.timeout(self.schedule_delay)
 
         for task in tasks:
-            logger.info(f"[@ {self.env.now}] {task.tag} is scheduled.")
+            logger.info(f"[@ {self.env.now}] {task.tag} is scheduled to prr {list(map(lambda x: x.id, task.prrs))}.")
             yield self.env.process(self.task_queue.remove(task))
             task.ts_schedule = int(self.env.now)
             accelerator.execute(task)

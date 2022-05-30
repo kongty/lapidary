@@ -14,7 +14,8 @@ class ComponentStatus(Enum):
 
 @dataclass
 class PRR:
-    id: Tuple[int, int] = (0, 0)
+    id: int = 0
+    coord: Tuple[int, int] = (0, 0)
     status: ComponentStatus = ComponentStatus.idle
     task: Optional[Task] = None
     height: int = 0

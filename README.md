@@ -2,7 +2,7 @@
 
 ## What is Lapidary?
 
-Lapidary aims to be the CGRA arhictecture simulator for multi-tenant workloads.
+Lapidary aims to be the CGRA architecture simulator for multi-tenant workloads.
 Lapidary allows developers to implement their own hardware and scheduler and quickly calculate the performance.
 
 ## Quick Installation

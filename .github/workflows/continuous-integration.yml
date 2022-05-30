@@ -26,9 +26,11 @@ jobs:
       - name: Lint with pycodestyle
         run: |
           pycodestyle ./lapidary/*.py
+          pycodestyle ./util/*.py
+          pycodestyle ./tests/*.py
       - name: Lint with mypy
         run: |
-          mypy ./lapidary/*.py
+          mypy . --ignore-missing-imports
       - name: Test with pytest
         run: |
           pytest

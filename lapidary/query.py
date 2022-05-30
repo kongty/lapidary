@@ -3,6 +3,7 @@ import numpy as np
 from typing import Optional, TypedDict, Union, Dict, List, Generator, cast
 from lapidary.task import Task
 from lapidary.task_queue import TaskQueue
+from util.logger import Logger
 import logging
 from collections import defaultdict
 logger = logging.getLogger(__name__)
@@ -76,7 +77,7 @@ class Query:
             error = f"The distribution '{self.dist}' is not supported. ['fixed', 'poission']"
             raise Exception(error)
 
-    def dispatch(self, task_logger: Optional[List[Task]] = None) -> Generator[simpy.events.Event, None, None]:
+    def dispatch(self, task_logger: Logger = None) -> Generator[simpy.events.Event, None, None]:
         """Generate tasks and put it in a task queue."""
         wait_time = 0
         for id, interval in enumerate(self._intervals):
@@ -89,7 +90,7 @@ class Query:
             for task_k, task_v in self.tasks.items():
                 task = Task(self.env, self.name, id, task_k, task_v['app'], task_v['dependencies'])
                 if task_logger is not None:
-                    task_logger.append(task)
+                    task_logger.add_task(task)
                 task.ts_dispatch = int(self.env.now)
                 task_dict[task_k] = task
                 tasks.append(task)

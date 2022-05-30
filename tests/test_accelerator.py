@@ -1,23 +1,9 @@
 import simpy
 import pytest
 from typing import Tuple
-from lapidary.accelerator import Accelerator, AcceleratorConfigType
+from lapidary.accelerator import Accelerator
 from lapidary.app import AppConfig
-
-accelerator_config = AcceleratorConfigType(
-    {
-        'name': 'accelerator',
-        'num_glb_banks': 32,
-        'num_prr_height': 4,
-        'num_prr_width': 4,
-        'prr': {
-            'height': 8,
-            'width': 8,
-            'num_input': 4,
-            'num_output': 4
-        }
-    }
-)
+from .test_configs import accelerator_config
 
 
 @pytest.mark.parametrize('shape', [(2, 2), (4, 4), (1, 3), (3, 1)])

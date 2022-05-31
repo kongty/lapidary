@@ -51,7 +51,6 @@ class Logger:
         self.task_df.set_index('tag', inplace=True)
 
     def dump_task_df(self, filename: str) -> None:
-        self.update_df()
         logger.info(f"A task log file was generated: {filename}")
         self.task_df.to_csv(filename)
 
@@ -60,7 +59,7 @@ class Logger:
         total_utilization = float(sum(prr_utilization.values()) / len(prr_utilization.values()))
         return total_utilization
 
-    def calculate_prr_utilization(self) -> Dict[int, float]:
+    def calculate_prr_utilization(self) -> Dict[str, float]:
         result = {}
         start = self.task_df['ts_queue'].min()
         end = self.task_df['ts_done'].max()
@@ -69,7 +68,7 @@ class Logger:
             runtime_col = df['ts_done'] - df['ts_schedule']
             total_runtime = runtime_col.sum()
             utilization = float(total_runtime / (end - start))
-            result[i] = utilization
+            result[f"prr{i}"] = utilization
 
         return result
 

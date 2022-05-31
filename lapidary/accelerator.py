@@ -196,7 +196,28 @@ class Accelerator:
             shape: (height, width)
         """
         if self.config.prr_flexible:
-            raise NotImplementedError("Flexible PRR mapping is not available yet.")
+            height, width = shape
+            total_num_prr = height * width
+            # Note: Greedy search algorithm for available prrs.
+            found = False
+            prrs = []
+            found_prrs = 0
+            prr_available_mask = self.prr_available_mask
+            for y in range(self.config.num_prr_height):
+                for x in range(self.config.num_prr_width):
+                    if prr_available_mask[y][x]:
+                        prrs.append(self.prrs[y][x])
+                        found_prrs += 1
+                    if found_prrs >= total_num_prr:
+                        found = True
+                        break
+                if found is True:
+                    break
+
+            if found is False:
+                return []
+            else:
+                return prrs
         else:
             height, width = shape
             # Note: Greedy search algorithm for available prrs.

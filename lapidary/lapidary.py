@@ -6,6 +6,8 @@ from lapidary.scheduler import GreedyScheduler
 from typing import Optional, Union, Dict
 import os
 from util.logger import Logger
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Lapidary:
@@ -26,6 +28,8 @@ class Lapidary:
         self.workload.run_dispatch(self.task_logger)
         self.scheduler.run(self.accelerator)
         self.env.run(until=until)
+        self.task_logger.update_df()
+        logger.info(f"Total utilization: {self.task_logger.calculate_utilization()}")
 
     def set_interface(self) -> None:
         self.workload.set_task_queue(self.scheduler.task_queue)
@@ -35,5 +39,6 @@ class Lapidary:
         if not os.path.exists(dir):
             os.makedirs(dir)
 
+        self.task_logger.update_df()
         self.task_logger.dump_task_df(os.path.join(dir, "task.csv"))
         self.task_logger.dump_perf(os.path.join(dir, "perf.txt"))

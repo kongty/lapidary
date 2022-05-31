@@ -11,15 +11,15 @@ def test_accelerator_map(shape: Tuple[int, int]):
     env = simpy.Environment()
     accelerator = Accelerator(env, accelerator_config)
 
-    width, height = shape
-    app_config = AppConfig(prr_shape=(width, height))
+    height, width = shape
+    app_config = AppConfig(prr_shape=(height, width))
     prrs = accelerator.map(app_config)
     assert len(prrs) == width * height
 
     idx = 0
-    for j in range(width):
-        for i in range(height):
-            assert prrs[idx].id == (i, j)
+    for i in range(height):
+        for j in range(width):
+            assert prrs[idx].id == i * accelerator.config.num_prr_width + j
             idx += 1
 
 

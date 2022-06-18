@@ -1,7 +1,7 @@
 import pytest
 import simpy
-from lapidary.task_queue import TaskQueue
-from lapidary.task import Task
+from vault.task_queue import TaskQueue
+from vault.task import Task
 
 
 @pytest.mark.parametrize('maxsize', [5, 10])

@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Tuple
 if TYPE_CHECKING:
-    from lapidary.task import Task
+    from vault.task import Task
 from enum import Enum
 
 

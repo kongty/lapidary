@@ -1,5 +1,5 @@
 import simpy
-from lapidary.task import Task
+from vault.task import Task
 from typing import Union, List, Optional, Generator
 import logging
 logger = logging.getLogger(__name__)

@@ -1,8 +1,8 @@
 import simpy
-from lapidary.app import AppPool
-from lapidary.accelerator import Accelerator, AcceleratorConfigType
-from lapidary.workload import Workload
-from lapidary.scheduler import GreedyScheduler
+from vault.app import AppPool
+from vault.accelerator import Accelerator, AcceleratorConfigType
+from vault.workload import Workload
+from vault.scheduler import GreedyScheduler
 from typing import Optional, Union, Dict
 import os
 from util.logger import Logger
@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Lapidary:
+class Vault:
     def __init__(self, accelerator_config: Optional[Union[str, AcceleratorConfigType]],
                  workload_config: Optional[Union[str, Dict]], app_pool: AppPool) -> None:
         # simpy environment

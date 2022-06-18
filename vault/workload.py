@@ -2,8 +2,8 @@ import simpy
 import os
 import yaml
 from typing import Dict, Optional, Union, List
-from lapidary.query import Query, QueryConfigType
-from lapidary.task_queue import TaskQueue
+from vault.query import Query, QueryConfigType
+from vault.task_queue import TaskQueue
 from util.logger import Logger
 import logging
 logger = logging.getLogger(__name__)

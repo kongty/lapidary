@@ -1,4 +1,4 @@
-# **Valut**: CGRA Simulator for Multi-Tenant Workload ![Continuous Integration](https://github.com/kongty/vault/actions/workflows//continuous-integration.yml/badge.svg)
+# **Vault**: CGRA Simulator for Multi-Tenant Workload ![Continuous Integration](https://github.com/kongty/vault/actions/workflows//continuous-integration.yml/badge.svg)
 
 ## What is Vault?
 

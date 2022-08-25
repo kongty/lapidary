@@ -1,8 +1,8 @@
 import simpy
 import pytest
 from typing import Tuple
-from vault.accelerator import Accelerator
-from vault.app import AppConfig
+from lapidary.accelerator import Accelerator
+from lapidary.app import AppConfig
 from .test_configs import accelerator_config
 
 

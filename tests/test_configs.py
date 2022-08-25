@@ -1,4 +1,4 @@
-from vault.accelerator import AcceleratorConfigType
+from lapidary.accelerator import AcceleratorConfigType
 
 
 query_config = {

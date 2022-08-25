@@ -1,9 +1,9 @@
 from __future__ import annotations
 import simpy
-from vault.app import AppConfig
+from lapidary.app import AppConfig
 from typing import TYPE_CHECKING, Tuple, List
 if TYPE_CHECKING:
-    from vault.components import PRR
+    from lapidary.components import PRR, Bank
 from enum import Enum
 import logging
 logger = logging.getLogger(__name__)

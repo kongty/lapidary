@@ -1,7 +1,7 @@
 import pandas as pd
 import pathlib
 from typing import Union, List, Tuple, Dict
-from vault.task import Task
+from lapidary.task import Task
 import logging
 import yaml
 logger = logging.getLogger(__name__)

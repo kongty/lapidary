@@ -1,6 +1,6 @@
 import simpy
-from vault.query import Query
-from vault.task_queue import TaskQueue
+from lapidary.query import Query
+from lapidary.task_queue import TaskQueue
 from .test_configs import query_config
 
 

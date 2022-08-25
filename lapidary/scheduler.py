@@ -1,10 +1,10 @@
 import simpy
 from abc import ABC, abstractmethod
 from typing import Generator, Any, List
-from vault.accelerator import Accelerator
-from vault.task_queue import TaskQueue
-from vault.task import Task
-from vault.app import AppPool, NoAppConfigError
+from lapidary.accelerator import Accelerator
+from lapidary.task_queue import TaskQueue
+from lapidary.task import Task
+from lapidary.app import AppPool, NoAppConfigError
 import logging
 logger = logging.getLogger(__name__)
 

@@ -1,8 +1,8 @@
 import simpy
 import numpy as np
 from typing import Optional, TypedDict, Union, Dict, List, Generator, cast
-from vault.task import Task
-from vault.task_queue import TaskQueue
+from lapidary.task import Task
+from lapidary.task_queue import TaskQueue
 from util.logger import Logger
 import logging
 from collections import defaultdict

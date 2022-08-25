@@ -5,9 +5,9 @@ import os
 import simpy
 from typing import List, Tuple, Optional, Union, TypedDict, Generator
 from functools import reduce
-from vault.app import AppConfig
-from vault.components import ComponentStatus, NoC, PRR, Bank, OffchipInterface
-from vault.task import Task
+from lapidary.app import AppConfig
+from lapidary.components import ComponentStatus, NoC, PRR, Bank, OffchipInterface
+from lapidary.task import Task
 from enum import Enum
 import logging
 logger = logging.getLogger(__name__)

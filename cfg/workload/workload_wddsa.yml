@@ -1,0 +1,37 @@
+query_0:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 50
+  dist_size: 10
+  tasks:
+    conv1:
+      app: "app_0"
+      dependencies: []
+    conv2:
+      app: "app_0"
+      dependencies: [conv1]
+    conv3:
+      app: "app_0"
+      dependencies: [conv2]
+    conv4:
+      app: "app_0"
+      dependencies: [conv3]
+
+query_1:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 40
+  dist_size: 10
+  tasks:
+    conv1:
+      app: "app_0"
+      dependencies: []
+    conv2:
+      app: "app_0"
+      dependencies: [conv1]
+    conv3:
+      app: "app_0"
+      dependencies: [conv2]
+    conv4:
+      app: "app_0"
+      dependencies: [conv3]

@@ -29,6 +29,8 @@ class Vault:
         self.scheduler.run(self.accelerator)
         self.env.run(until=until)
         self.task_logger.update_df()
+        logger.info(f"ANTT: {self.task_logger.calculate_antt()}")
+        logger.info(f"STP: {self.task_logger.calculate_stp()}")
         logger.info(f"Total utilization: {self.task_logger.calculate_utilization()}")
 
     def set_interface(self) -> None:

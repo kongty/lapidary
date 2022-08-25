@@ -26,6 +26,7 @@ class PRR:
 
 @dataclass
 class Bank:
+    id: int = 0
     status: ComponentStatus = ComponentStatus.idle
     task: Optional[Task] = None
     size: int = 0

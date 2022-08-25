@@ -55,7 +55,8 @@ class GreedyScheduler(Scheduler):
         yield self.env.timeout(self.schedule_delay)
 
         for task in tasks:
-            logger.info(f"[@ {self.env.now}] {task.tag} is scheduled to prr {list(map(lambda x: x.id, task.prrs))}.")
+            logger.info(f"[@ {self.env.now}] {task.tag} is scheduled to prr {list(map(lambda x: x.id, task.prrs))}, "
+                        f"bank {list(map(lambda x: x.id, task.banks))}.")
             yield self.env.process(self.task_queue.remove(task))
             task.ts_schedule = int(self.env.now)
             accelerator.execute(task)
@@ -81,7 +82,7 @@ class GreedyScheduler(Scheduler):
             # For now, we just use the first available app_config from the app_pool.
             is_mapped = False
             for app_config in app_config_list:
-                prrs = accelerator.map(app_config)
+                prrs, banks = accelerator.map(app_config)
                 if len(prrs) > 0:
                     is_mapped = True
                     break
@@ -92,7 +93,7 @@ class GreedyScheduler(Scheduler):
 
             # Set app_config for the task
             task.set_app_config(app_config)
-            accelerator.allocate(task, prrs)
+            accelerator.allocate(task, prrs, banks)
             tasks.append(task)
 
         return tasks

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import simpy
 from vault.app import AppConfig
-from typing import TYPE_CHECKING, Tuple, List, Generator
+from typing import TYPE_CHECKING, Tuple, List
 if TYPE_CHECKING:
     from vault.components import PRR
 from enum import Enum
@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class TaskStatus(Enum):
-    pending = 1
-    running = 2
-    done = 3
+    PENDING = 1
+    RUNNING = 2
+    DONE = 3
 
 
 class Task:
@@ -24,7 +24,7 @@ class Task:
         self.query_id = query_id
         self.app = app
         self.tag = f"{self.query_name}_#{self.query_id}_{self.name}"
-        self.status = TaskStatus.pending
+        self.status = TaskStatus.PENDING
         self.deps = deps
 
         self.ts_dispatch: int = 0
@@ -32,6 +32,7 @@ class Task:
         self.ts_schedule: int = 0
         self.ts_done: int = 0
         self.prrs: List[PRR] = []
+        self.banks: List[Bank] = []
 
         self.app_config: AppConfig
 
@@ -51,3 +52,6 @@ class Task:
 
     def set_prrs(self, prrs: List[PRR]) -> None:
         self.prrs = prrs
+
+    def set_banks(self, banks: List[Bank]) -> None:
+        self.banks = banks

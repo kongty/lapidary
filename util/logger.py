@@ -54,6 +54,21 @@ class Logger:
         logger.info(f"A task log file was generated: {filename}")
         self.task_df.to_csv(filename)
 
+    def calculate_antt(self) -> Dict[str, float]:
+        # Turnaround Time (TT) = Waiting Time + Service Time
+        # Normalized Turnaround Time (NTT): TT / Service Time
+        self.task_df['service_time'] = self.task_df['ts_done'] - self.task_df['ts_schedule']
+        self.task_df['tt'] = self.task_df['ts_done'] - self.task_df['ts_queue']
+        self.task_df['ntt'] = self.task_df['tt'] - self.task_df['service_time']
+        antt_dict = self.task_df[['query', 'ntt']].groupby('query').mean()['ntt'].to_dict()
+        return antt_dict
+
+    def calculate_stp(self) -> Dict[str, float]:
+        df = self.task_df.groupby('query')[['query_id', 'ts_done']].agg('max')
+        df['stp'] = df['query_id'] / df['ts_done']
+        stp_dict = df['stp'].to_dict()
+        return stp_dict
+
     def calculate_utilization(self) -> float:
         prr_utilization = self.calculate_prr_utilization()
         total_utilization = float(sum(prr_utilization.values()) / len(prr_utilization.values()))

@@ -2,9 +2,10 @@ import simpy
 from abc import ABC, abstractmethod
 from typing import Generator, Any, List
 from lapidary.accelerator import Accelerator
+from lapidary.components import PRR, Bank
 from lapidary.task_queue import TaskQueue
 from lapidary.task import Task
-from lapidary.app import AppPool, NoAppConfigError
+from lapidary.app import AppConfig, AppPool, NoAppConfigError
 import logging
 logger = logging.getLogger(__name__)
 
@@ -81,19 +82,32 @@ class GreedyScheduler(Scheduler):
             # TODO: Optimize by choosing the best bitstream from the app_pool.
             # For now, we just use the first available app_config from the app_pool.
             is_mapped = False
+            runtime = 0
+            selected_app_config: AppConfig = None
+            selected_prrs: List[PRR] = []
+            selected_banks: List[Bank] = []
             for app_config in app_config_list:
                 prrs, banks = accelerator.map(app_config)
                 if len(prrs) > 0:
+                    if runtime == 0:
+                        runtime = app_config.runtime
+                        selected_app_config = app_config
+                        selected_prrs = prrs
+                        selected_banks = banks
+                    elif app_config.runtime < runtime:
+                        runtime = app_config.runtime
+                        selected_app_config = app_config
+                        selected_prrs = prrs
+                        selected_banks = banks
                     is_mapped = True
-                    break
 
             # Break if any app_config is not mappable
             if is_mapped is False:
                 break
 
             # Set app_config for the task
-            task.set_app_config(app_config)
-            accelerator.allocate(task, prrs, banks)
+            task.set_app_config(selected_app_config)
+            accelerator.allocate(task, selected_prrs, selected_banks)
             tasks.append(task)
 
         return tasks

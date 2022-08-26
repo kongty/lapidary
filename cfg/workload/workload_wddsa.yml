@@ -1,37 +1,49 @@
-query_0:
+resnet:
   dist: "poisson" # manual or fixed or poisson or stream
   dist_start: 0 # Can be random number in a range
-  dist_lambda: 50
+  dist_lambda: 5000
   dist_size: 10
   tasks:
     conv1:
-      app: "app_0"
+      app: "rn_conv1"
       dependencies: []
     conv2:
-      app: "app_0"
+      app: "rn_conv2"
       dependencies: [conv1]
     conv3:
-      app: "app_0"
+      app: "rn_conv3"
       dependencies: [conv2]
     conv4:
-      app: "app_0"
+      app: "rn_conv4"
       dependencies: [conv3]
+    conv5:
+      app: "rn_conv5"
+      dependencies: [conv4]
 
-query_1:
+mobilenet:
   dist: "poisson" # manual or fixed or poisson or stream
   dist_start: 0 # Can be random number in a range
-  dist_lambda: 40
+  dist_lambda: 2000
   dist_size: 10
   tasks:
     conv1:
-      app: "app_0"
+      app: "mn_conv1"
       dependencies: []
     conv2:
-      app: "app_0"
+      app: "mn_conv2"
       dependencies: [conv1]
     conv3:
-      app: "app_0"
+      app: "mn_conv3"
       dependencies: [conv2]
     conv4:
-      app: "app_0"
+      app: "mn_conv4"
       dependencies: [conv3]
+    conv5:
+      app: "mn_conv5"
+      dependencies: [conv4]
+    conv6:
+      app: "mn_conv6"
+      dependencies: [conv5]
+    conv7:
+      app: "mn_conv7"
+      dependencies: [conv6]

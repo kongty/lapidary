@@ -23,7 +23,7 @@ class Lapidary:
         self.task_logger = Logger(self.accelerator.config.num_prr_height * self.accelerator.config.num_prr_width)
         self.set_interface()
 
-    def run(self, until: int) -> None:
+    def run(self, until: Optional[int] = None) -> None:
         """Dispatch workload, start scheduler, and run simpy simulation."""
         self.workload.run_dispatch(self.task_logger)
         self.scheduler.run(self.accelerator)

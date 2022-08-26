@@ -4,7 +4,7 @@ num_prr_height: 1
 num_prr_width: 8
 offchip_bandwidth: 256
 noc_bandwidth: 256
-partition: fixed
+partition: flexible
 prr:
   height: 16
   width: 4

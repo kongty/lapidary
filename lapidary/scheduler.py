@@ -1,12 +1,13 @@
 import simpy
 from abc import ABC, abstractmethod
 from typing import Generator, Any, List
-from lapidary.accelerator import Accelerator
+from lapidary.accelerator import Accelerator, PartitionType
 from lapidary.components import PRR, Bank
 from lapidary.task_queue import TaskQueue
 from lapidary.task import Task
 from lapidary.app import AppConfig, AppPool, NoAppConfigError
 import logging
+import math
 logger = logging.getLogger(__name__)
 
 
@@ -87,6 +88,9 @@ class GreedyScheduler(Scheduler):
             selected_prrs: List[PRR] = []
             selected_banks: List[Bank] = []
             for app_config in app_config_list:
+                # if accelerator.config.partition == PartitionType.FIXED:
+                #     if max(int(math.ceil((app_config.input + app_config.output) / (accelerator.config.num_glb_banks // accelerator.config.num_prr_width))), app_config.prr_shape[1]) > 2:
+                #         continue
                 prrs, banks = accelerator.map(app_config)
                 if len(prrs) > 0:
                     if runtime == 0:

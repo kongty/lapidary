@@ -18,7 +18,8 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)s: %(message)s', stream=sys.stdout, level=logging.INFO)
 
     app_pool = AppPool("app_pool_0")
-    app_pool.add("rn_conv1", AppConfig(prr_shape=(1, 5), pe=150, mem=15, input=16, output=0, runtime=2458))
+    app_pool.add("rn_conv1", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=14, output=0, runtime=2458))
+    app_pool.add("rn_conv1", AppConfig(prr_shape=(1, 4), pe=150, mem=15, input=14, output=0, runtime=2458))
     app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=7, output=0, runtime=1806))
     app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 6), pe=150, mem=15, input=7, output=0, runtime=452))
     app_pool.add("rn_conv3", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=4, output=0, runtime=903))
@@ -43,7 +44,7 @@ if __name__ == "__main__":
     app_pool.add("mn_conv7", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=5, output=0, runtime=540))
     app_pool.add("mn_conv7", AppConfig(prr_shape=(1, 5), pe=150, mem=15, input=5, output=0, runtime=125))
 
-    app_pool.add("cp", AppConfig(prr_shape=(1, 4), pe=150, mem=15, input=4, output=0, runtime=490))
+    app_pool.add("cp", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=4, output=0, runtime=980))
     app_pool.add("cp", AppConfig(prr_shape=(1, 6), pe=150, mem=15, input=14, output=0, runtime=120))
     app_pool.add("harris", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=4, output=0, runtime=410))
     app_pool.add("harris", AppConfig(prr_shape=(1, 4), pe=150, mem=15, input=7, output=0, runtime=205))

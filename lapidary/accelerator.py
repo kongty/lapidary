@@ -308,7 +308,7 @@ class Accelerator:
             # TODO: Assume PRR is also 1-D for WDDSA paper
             if num_io > width * banks_per_prr:
                 width = int(math.ceil(num_io / banks_per_prr))
-            assert width == 1
+            assert width <= 2
             # Note: Greedy search algorithm for available prrs.
             found_prr = False
             prr_available_mask = self.prr_available_mask

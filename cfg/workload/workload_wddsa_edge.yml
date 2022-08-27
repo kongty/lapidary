@@ -1,0 +1,50 @@
+resnet:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 75000
+  dist_size: 200
+  tasks:
+    conv1:
+      app: "rn_conv1"
+      dependencies: []
+    conv2:
+      app: "rn_conv2"
+      dependencies: [conv1]
+    conv3:
+      app: "rn_conv3"
+      dependencies: [conv2]
+    conv4:
+      app: "rn_conv4"
+      dependencies: [conv3]
+    conv5:
+      app: "rn_conv5"
+      dependencies: [conv4]
+
+gaussian:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 75000
+  dist_size: 200
+  tasks:
+    gaussian:
+      app: "gaussian"
+
+stereo:
+  dist: "poisson" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_lambda: 75000
+  dist_size: 200
+  tasks:
+    stereo:
+      app: "stereo"
+      dependencies: []
+
+cp:
+  dist: "fixed" # manual or fixed or poisson or stream
+  dist_start: 0 # Can be random number in a range
+  dist_interval: 15000
+  dist_size: 1000
+  tasks:
+    cp:
+      app: "cp"
+      dependencies: []

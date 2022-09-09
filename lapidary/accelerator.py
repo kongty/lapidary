@@ -243,8 +243,10 @@ class Accelerator:
         """
         if self.config.partition == PartitionType.FLEXIBLE:
             height, width = shape
-            total_required_prr = height * width
-            total_required_banks = num_io
+            # total_required_prr = height * width
+            # total_required_banks = num_io
+            total_required_prr = 8
+            total_required_banks = 32
             # Note: Greedy search algorithm for available prrs.
             found_prr = False
             found_bank = False

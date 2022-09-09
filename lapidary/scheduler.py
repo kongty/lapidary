@@ -34,8 +34,8 @@ class Scheduler(ABC):
 class GreedyScheduler(Scheduler):
     def __init__(self, env: simpy.Environment) -> None:
         super().__init__(env)
-        self.task_queue = TaskQueue(self.env, maxsize=30)
-        self.schedule_delay = 5
+        self.task_queue = TaskQueue(self.env, maxsize=40000)
+        self.schedule_delay = 1157
 
     def proc_schedule(self, accelerator: Accelerator) -> Generator[simpy.events.Event, simpy.events.ConditionValue,
                                                                    None]:

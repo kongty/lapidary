@@ -1,35 +1,70 @@
-09/08/2022 -- Random Ideas
-----------------------------
+dpr wddsa contribution
 
-- The Research Goal.
-Maximum flexibility of CGRA that serves Multi-DNN workloads on both cloud and edge.
+Highly concurrent execution, spatially multiplexed CGRA.
+In edge scenario, there are so many dependent tasks that are dynamically generated.
+In cloud scenario, independent tasks arrive at node with different throughput.
 
-Multi-DNN scenario is diverse.
-1. multi-tenancy (independent, different requirement)
-2. one application with multi-DNN (synchronization, autonomous vehicle)
-3. dynamic DNN 
+- Dynamic scheduler is needed to support multi-task execution.
+    - Different shape
+    - Instructions: RC instruction, addr, data, dest
 
-Scheduling can be diverse
-1. statically at design time vs dynamically at runtime
-2. temporal multiplexing or/and spatial multiplexing
-3. software based vs hardware based
-thoughts: systems that favors flexibility and dynamism adopt dynamic scheduling.
- pros: random/dynamic DNN task can be served.
-systems that favors customization and performance adopt static scheduling. 
- pros: globally optimzed performance (suboptimal mapping of one task can lead global optimization)
- pros2: predictability
- cons: dnn workloads should be known a priori
+scheduler decide:
+    - Which task to run
+    - Synchronize
+
+Chordmap:
+    - It only applies for streaming application where all tasks are known a priori.
+
+2. How to abstract task so that CGRA can dynamically schedule each task
+3. It would be good if CGRA can do both and choose one depending on the situation.
+4. How to synchronize if there is communication between tasks (barriers?)
+
+How to get over tall/thin region? Can we have unbalanced horizontal/vertical routing track?
+
+System support (resource management)
+Scheduling algorithms do not account for characteristics of CGRAs, leading to infeasible or inefficient allocations.
+
+Average throughput, average utilization
+
+Virtualization: spatial sharing
+Partial reconfiguration: temporal sharing (In order to reduce time to save intermediate state, only switch at specific time point)
+System's desired target allocations. Max/min fariness. Priority based.
+
+Autnonomous system has strict requirements on the response time of the task.
+
+CGRA / FPGA reconfigurable architectures: slots. However, the size is static. When multiple slots are needed, you need to partition the graph and need communication. Merge is not easily supported by EDA tools, and complicates fpga mappings.
+CGRA is coarse, so we can  easily control this.
+FPGA config space too big. even ICAP is slow.
+
+virtualization and fast-DPR provides mechanisms for sharing CGRAs but not managing them.
 
 
-CGRA can serve both server accelerator and edge system.
+
+Host to manage task parallelism and task launches: It's hard.
+on-chip task scheduling and launching capabiliteis . low-latency dynamic task parallelism.. on-chip exchange of values.
 
 
-- Random Questions
-1. When workload is determined in advance, we can pretty much analyze resource usage and statically schedule each task.
-   For example, let's say there are DNN1 with computation graph A-B-C, and DNN2 with computation graph D-E-F.
-   If we know 
-2. For better scheduling, workload needs to be abstracted better than just the number of hardware resource usage.
+
+preliminary prototype. speedup compared to.
+SLO: tail-latency
+ASSUME REQUEST QUEUES ARE ALWAYS SATURATED, THEREBY ISOLATING MODEL SERVICE LATENCY FROM REQUEST QUEUING LATENCY.
+Two-level schedule (instruction, task) 
+Monitor latency per-kernel. Reallocating resources between tenants on the fly.
+resource-efficiency, latency predictability, isolation
+application level graph! vs kernel level graph.
 
 
-Another research
-CGRA DSE framework.
+Batch mode scheduling vs immediate mode scheduling.
+
+RMS receive task with QoS and SLA requirements from IoT devices and users.
+It schedules the new task and also periodically decides migration.
+PRR, MEM, Bandwidth, Completion time, Deadline.
+
+
+kernel = layer
+job = frame
+model = user
+
+To optimize concurrency for workloads exhibiting staged computation demand.
+
+Full stack: Batch (data fusion in autonomous driving when multiple cameras frames)

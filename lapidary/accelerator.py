@@ -304,31 +304,5 @@ class Accelerator:
                 prrs = list(np.array(self.prrs)[y:y+height, x:x+width].flatten())
                 banks = self.banks[x:x+width]
                 return prrs, banks
-        elif self.config.partition == PartitionType.FIXED:
-            height, width = shape
-            banks_per_prr = self.config.num_glb_banks // self.config.num_prr_width
-            # TODO: Assume PRR is also 1-D for WDDSA paper
-            if num_io > width * banks_per_prr:
-                width = int(math.ceil(num_io / banks_per_prr))
-            assert width <= 2
-            # Note: Greedy search algorithm for available prrs.
-            found_prr = False
-            prr_available_mask = self.prr_available_mask
-            for y in range(self.config.num_prr_height - height + 1):
-                for x in range(self.config.num_prr_width - width + 1):
-                    prr_mask = np.array(prr_available_mask)[y:y+height, x:x+width]
-                    is_available = reduce(lambda x, y: x and y, prr_mask.flatten())
-                    if is_available:
-                        found_prr = True
-                        break
-                if found_prr is True:
-                    break
-
-            if found_prr is False:
-                return [], []
-            else:
-                prrs = list(np.array(self.prrs)[y:y+height, x:x+width].flatten())
-                banks = self.banks[x:x+width]
-                return prrs, banks
         else:
             raise Exception(f"Partition type should be either 'fixed', 'variable', or 'flexible'")

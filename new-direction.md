@@ -59,3 +59,11 @@ How to optimize
 
 ## Related Future Research
 Using CGRA abstractions and workload descriptions, we can do DSE to find optimal architecture for multi-dnn complex workload scenarios.
+
+Hierarchical CGRA, multi-length interconnect
+
+graph-analysis based mathmatical optimization approach for DSE
+
+block level ready/valid
+
+Dataflow overlay vs mapping/pnr

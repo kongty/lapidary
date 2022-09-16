@@ -24,6 +24,7 @@ class PartitionType(Enum):
     FIXED = 1
     VARIABLE = 2
     FLEXIBLE = 3
+    FULL_FLEXIBLE = 4
 
 
 class AcceleratorConfigType(TypedDict):
@@ -241,19 +242,17 @@ class Accelerator:
             shape: (height, width)
             num_io: number of inputs and outputs
         """
-        if self.config.partition == PartitionType.FLEXIBLE:
+        if self.config.partition == PartitionType.FULL_FLEXIBLE:
             height, width = shape
-            # total_required_prr = height * width
-            # total_required_banks = num_io
-            total_required_prr = 8
-            total_required_banks = 32
+            total_required_prr = height * width
+            total_required_banks = num_io
             # Note: Greedy search algorithm for available prrs.
             found_prr = False
             found_bank = False
             prrs = []
             banks = []
             found_prrs = 0
-            found_banks = 0
+            num_found_banks = 0
             prr_available_mask = self.prr_available_mask
             bank_available_mask = self.bank_available_mask
             for y in range(self.config.num_prr_height):
@@ -270,8 +269,44 @@ class Accelerator:
             for x in range(self.config.num_glb_banks):
                 if bank_available_mask[x]:
                     banks.append(self.banks[x])
-                    found_banks += 1
-                if found_banks >= total_required_banks:
+                    num_found_banks += 1
+                if num_found_banks >= total_required_banks:
+                    found_bank = True
+                    break
+
+            if found_prr is False or found_bank is False:
+                return [], []
+            else:
+                return prrs, banks
+        elif self.config.partition == PartitionType.FLEXIBLE:
+            height, width = shape
+            total_required_prr = height * width
+            total_required_banks = num_io
+            # Note: Greedy search algorithm for available prrs.
+            found_prr = False
+            prrs = []
+            prr_available_mask = self.prr_available_mask
+
+            for y in range(self.config.num_prr_height - height + 1):
+                for x in range(self.config.num_prr_width - width + 1):
+                    prr_mask = np.array(prr_available_mask)[y:y+height, x:x+width]
+                    is_available = reduce(lambda x, y: x and y, prr_mask.flatten())
+                    if is_available:
+                        found_prr = True
+                        break
+                if found_prr is True:
+                    prrs = list(np.array(self.prrs)[y:y+height, x:x+width].flatten())
+                    break
+
+            found_bank = False
+            banks = []
+            num_found_banks = 0
+            bank_available_mask = self.bank_available_mask
+            for x in range(self.config.num_glb_banks):
+                if bank_available_mask[x]:
+                    banks.append(self.banks[x])
+                    num_found_banks += 1
+                if num_found_banks >= total_required_banks:
                     found_bank = True
                     break
 

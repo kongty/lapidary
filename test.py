@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     app_pool = AppPool("app_pool_0")
     app_pool.add("rn_conv1", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=14, output=0, runtime=2458))
-    app_pool.add("rn_conv1", AppConfig(prr_shape=(1, 4), pe=150, mem=15, input=14, output=0, runtime=2458))
+    app_pool.add("rn_conv1", AppConfig(prr_shape=(1, 4), pe=150, mem=15, input=14, output=0, runtime=1229))
     app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=7, output=0, runtime=1806))
     app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 6), pe=150, mem=15, input=7, output=0, runtime=452))
     app_pool.add("rn_conv3", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=4, output=0, runtime=903))

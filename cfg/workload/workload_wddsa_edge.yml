@@ -7,39 +7,56 @@ resnet:
     conv1:
       app: "rn_conv1"
       dependencies: []
-    conv2:
+    conv2_1:
       app: "rn_conv2"
       dependencies: [conv1]
-    conv3:
+    conv2_2:
+      app: "rn_conv2"
+      dependencies: [conv2_1]
+    conv2_3:
+      app: "rn_conv2"
+      dependencies: [conv2_2]
+    conv2_4:
+      app: "rn_conv2"
+      dependencies: [conv2_3]
+    conv3_1:
       app: "rn_conv3"
-      dependencies: [conv2]
-    conv4:
+      dependencies: [conv2_4]
+    conv3_2:
+      app: "rn_conv3"
+      dependencies: [conv3_1]
+    conv3_3:
+      app: "rn_conv3"
+      dependencies: [conv3_2]
+    conv3_4:
+      app: "rn_conv3"
+      dependencies: [conv3_3]
+    conv4_1:
       app: "rn_conv4"
-      dependencies: [conv3]
-    conv5:
+      dependencies: [conv3_4]
+    conv4_2:
+      app: "rn_conv4"
+      dependencies: [conv4_1]
+    conv4_3:
+      app: "rn_conv4"
+      dependencies: [conv4_2]
+    conv4_4:
+      app: "rn_conv4"
+      dependencies: [conv4_3]
+    conv5_1:
       app: "rn_conv5"
-      dependencies: [conv4]
+      dependencies: [conv4_4]
+    conv5_2:
+      app: "rn_conv5"
+      dependencies: [conv5_1]
+    conv5_3:
+      app: "rn_conv5"
+      dependencies: [conv5_2]
+    conv5_4:
+      app: "rn_conv5"
+      dependencies: [conv5_3]
 
-gaussian:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 75000
-  dist_size: 200
-  tasks:
-    gaussian:
-      app: "gaussian"
-
-stereo:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 75000
-  dist_size: 200
-  tasks:
-    stereo:
-      app: "stereo"
-      dependencies: []
-
-cp:
+lane_detection:
   dist: "fixed" # manual or fixed or poisson or stream
   dist_start: 0 # Can be random number in a range
   dist_interval: 15000
@@ -48,3 +65,9 @@ cp:
     cp:
       app: "cp"
       dependencies: []
+    gaussian:
+      app: "gaussian"
+      dependencies: [cp]
+    harris:
+      app: "harris"
+      dependencies: [gaussian]

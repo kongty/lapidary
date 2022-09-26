@@ -71,3 +71,6 @@ Dataflow overlay vs mapping/pnr
 Can we do some polyhedral analysis to map multiple tasks simulatenously on the same memory unit instaed of space sharing it?!
 
 how to calculate requirement.
+
+Compute/Reconfig/Compute/Reconfig
+How to partition it into block and map it.

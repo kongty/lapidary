@@ -1,5 +1,5 @@
 import simpy
-from lapidary.query import Query
+from lapidary.query import TaskGenerator
 from lapidary.task_queue import TaskQueue
 from .test_configs import query_config
 
@@ -7,7 +7,7 @@ from .test_configs import query_config
 def test_dispatch():
     env = simpy.Environment()
     task_queue = TaskQueue(env, maxsize=1000)
-    query = Query(env, 'query', query_config)
+    query = TaskGenerator(env, 'query', query_config)
     query.set_task_queue(task_queue=task_queue)
 
     def run_dispatch(query):
@@ -25,7 +25,7 @@ def test_dispatch():
 def test_topo_sort():
     env = simpy.Environment()
     task_queue = TaskQueue(env, maxsize=10)
-    query = Query(env, 'query', query_config)
+    query = TaskGenerator(env, 'query', query_config)
     query.set_task_queue(task_queue=task_queue)
 
     def run_dispatch(query):

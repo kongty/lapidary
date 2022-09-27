@@ -3,9 +3,9 @@ from lapidary.app import AppPool
 from lapidary.accelerator import Accelerator, AcceleratorConfigType
 from lapidary.workload import Workload
 from lapidary.scheduler import GreedyScheduler
+from lapidary.util.task_logger import TaskLogger
 from typing import Optional, Union, Dict
 import os
-from util.logger import Logger
 import logging
 logger = logging.getLogger(__name__)
 
@@ -15,26 +15,35 @@ class Lapidary:
                  workload_config: Optional[Union[str, Dict]], app_pool: AppPool) -> None:
         # simpy environment
         self.env = simpy.Environment()
-        self.workload = Workload(self.env, workload_config)
+
         self.accelerator = Accelerator(self.env, accelerator_config)
-        self.app_pool = app_pool
+        # TODO: Get rid of num_prr argument from tasklogger
+        self.task_logger = TaskLogger(self.accelerator.config.num_prr_height * self.accelerator.config.num_prr_width)
         self.scheduler = GreedyScheduler(self.env)
+        self.app_pool = app_pool
+        self.workload = Workload(self.env, workload_config, self.task_logger)
+
+        # Set app pool that scheduler can use
         self.scheduler.set_app_pool(self.app_pool)
-        self.task_logger = Logger(self.accelerator.config.num_prr_height * self.accelerator.config.num_prr_width)
-        self.set_interface()
+
+        # TODO: Make accelerator system class and move scheduler inside the accelerator system
+        # Set accelerator that scheduler can use
+        self.scheduler.set_accelerator(self.accelerator)
+        self.accelerator.set_scheduler(self.scheduler)
+
+        # Set target scheduler for workload
+        self.workload.set_scheduler(self.scheduler)
 
     def run(self, until: Optional[int] = None) -> None:
         """Dispatch workload, start scheduler, and run simpy simulation."""
-        self.workload.run_dispatch(self.task_logger)
-        self.scheduler.run(self.accelerator)
+        self.workload.run_generate()
+        self.scheduler.run()
         self.env.run(until=until)
+
         self.task_logger.update_df()
         logger.info(f"ANTT: {self.task_logger.calculate_antt()}")
         logger.info(f"STP: {self.task_logger.calculate_stp()}")
         logger.info(f"Total utilization: {self.task_logger.calculate_utilization()}")
-
-    def set_interface(self) -> None:
-        self.workload.set_task_queue(self.scheduler.task_queue)
 
     def dump_logs(self, dir: str) -> None:
         dir = os.path.realpath(dir)

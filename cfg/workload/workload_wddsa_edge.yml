@@ -1,9 +1,10 @@
 resnet:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 75000
-  dist_size: 200
-  tasks:
+  dist:
+    type: "poisson" # manual or fixed or poisson or stream
+    start: 0 # Can be random number in a range
+    lambda: 75000
+    size: 200
+  kernels:
     conv1:
       app: "rn_conv1"
       dependencies: []
@@ -57,11 +58,12 @@ resnet:
       dependencies: [conv5_3]
 
 lane_detection:
-  dist: "fixed" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_interval: 15000
-  dist_size: 1000
-  tasks:
+  dist:
+    type: "fixed" # manual or fixed or poisson or stream
+    start: 0 # Can be random number in a range
+    interval: 15000
+    size: 1000
+  kernels:
     cp:
       app: "cp"
       dependencies: []

@@ -4,7 +4,6 @@
 # The Research Goal.
 Solve Multi-DNN problems on CGRA
 
-
 ## Components of the problem 
 
 ### Application
@@ -55,22 +54,11 @@ How to optimize
 2. How can we exploit flexibility of CGRA to improve performance as much as possible to make it competitive to ASIC (e.g. 5x area, 3x power?)
 3. Do we need Instructions
 
-
-
 ## Related Future Research
 Using CGRA abstractions and workload descriptions, we can do DSE to find optimal architecture for multi-dnn complex workload scenarios.
-
 Hierarchical CGRA, multi-length interconnect
-
 graph-analysis based mathmatical optimization approach for DSE
-
-block level ready/valid
-
 Dataflow overlay vs mapping/pnr
-
 Can we do some polyhedral analysis to map multiple tasks simulatenously on the same memory unit instaed of space sharing it?!
-
-how to calculate requirement.
-
 Compute/Reconfig/Compute/Reconfig
-How to partition it into block and map it.
+Edge case: dynamically change dataflow

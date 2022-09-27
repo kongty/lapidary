@@ -1,13 +1,16 @@
+from __future__ import annotations
 import numpy as np
 import math
 import yaml
 import os
 import simpy
-from typing import List, Tuple, Optional, Union, TypedDict, Generator
+from typing import TYPE_CHECKING, List, Tuple, Optional, Union, TypedDict, Generator
 from functools import reduce
 from lapidary.app import AppConfig
 from lapidary.components import ComponentStatus, NoC, PRR, Bank, OffchipInterface
-from lapidary.task import Task
+from lapidary.kernel import Kernel
+if TYPE_CHECKING:
+    from lapidary.scheduler import Scheduler
 from enum import Enum
 import logging
 logger = logging.getLogger(__name__)
@@ -109,9 +112,14 @@ class Accelerator:
         self._bank_available_mask: Optional[List[bool]] = [True for _ in range(len(self.banks))]
 
         # task_done event
-        self.evt_task_done = self.env.event()
+        self.evt_kernel_done = self.env.event()
 
+        self.scheduler: Scheduler
         self.interrupt_controller = simpy.Resource(self.env, capacity=1)
+
+    def set_scheduler(self, scheduler: Scheduler) -> None:
+        """Set a scheduler for accelerator."""
+        self.scheduler = scheduler
 
     def _generate_prrs(self) -> List[List[PRR]]:
         """Return 2d-list of partial regions."""
@@ -122,7 +130,7 @@ class Accelerator:
                 prrs[y][x] = PRR(id=(y*self.config.num_prr_width + x),
                                  coord=(x, y),
                                  status=ComponentStatus.idle,
-                                 task=None,
+                                 kernel=None,
                                  height=self.config.prr_height,
                                  width=self.config.prr_width,
                                  num_input=self.config.prr_num_input,
@@ -133,7 +141,7 @@ class Accelerator:
     def _generate_banks(self) -> List[Bank]:
         """Return 1d-list of global buffer banks."""
         # TODO: Set bank size to 0 for now.
-        banks: List[Bank] = [Bank(id=i, status=ComponentStatus.idle, task=None, size=0)
+        banks: List[Bank] = [Bank(id=i, status=ComponentStatus.idle, kernel=None, size=0)
                              for i in range(self.config.num_glb_banks)]
         return banks
 
@@ -172,43 +180,41 @@ class Accelerator:
 
         return self._bank_available_mask
 
-    def execute(self, task: Task) -> None:
-        """Start task execution process."""
-        logger.info(f"[@ {self.env.now}] {task.tag} execution starts.")
-        self.env.process(self.proc_execute(task))
+    def execute(self, kernel: Kernel) -> None:
+        """Start kernel execution process."""
+        logger.info(f"[@ {self.env.now}] {kernel.tag} execution starts.")
+        self.env.process(self.proc_execute(kernel))
 
-    def proc_execute(self, task: Task) -> Generator[simpy.events.Event, None, None]:
-        """Start task execution process."""
-        yield self.env.timeout(task.app_config.runtime)
-        task.ts_done = int(self.env.now)
-        logger.info(f"[@ {self.env.now}] {task.tag} execution finishes.")
+    def proc_execute(self, kernel: Kernel) -> Generator[simpy.events.Event, None, None]:
+        """Start kernel execution process."""
+        yield self.env.timeout(kernel.app_config.runtime)
+        kernel.ts_done = int(self.env.now)
+        logger.info(f"[@ {self.env.now}] {kernel.tag} execution finishes.")
 
-        # yield self.env.timeout(self.execution_delay)
-        # yield self.env.process(task.proc_execute())
         # Controller is a shared resource
-        interrupt = self.interrupt_controller.request()
-        yield interrupt
-        self.deallocate(task.prrs, task.banks)
-        self.evt_task_done.succeed(value=(task, interrupt))
+        mut_kernel_done = self.scheduler.mut_controller.request()
+        yield mut_kernel_done
+        self.deallocate(kernel.prrs, kernel.banks)
+        self.evt_kernel_done.succeed(value=(kernel, mut_kernel_done))
 
-    def acknowledge_task_done(self, interrupt: simpy.resources.resource.Request) -> None:
-        self.interrupt_controller.release(interrupt)
-        self.evt_task_done = self.env.event()
+    def acknowledge_kernel_done(self, mut_kernel_done: simpy.resources.resource.Request) -> None:
+        self.scheduler.mut_controller.release(mut_kernel_done)
+        self.evt_kernel_done = self.env.event()
 
-    def allocate(self, task: Task, prrs: List[PRR], banks: List[Bank]) -> None:
+    def allocate(self, kernel: Kernel, prrs: List[PRR], banks: List[Bank]) -> None:
         """Allocate prrs to a task."""
-        task.set_prrs(prrs)
-        task.set_banks(banks)
+        kernel.set_prrs(prrs)
+        kernel.set_banks(banks)
         for prr in prrs:
             if prr.status != ComponentStatus.idle:
-                raise Exception(f"Cannot allocate PRR_{prr.id} to {task.tag}. It is not idle.")
+                raise Exception(f"Cannot allocate PRR_{prr.id} to {kernel.tag}. It is not idle.")
             prr.status = ComponentStatus.used
-            prr.task = task
+            prr.kernel = kernel
         for bank in banks:
             if bank.status != ComponentStatus.idle:
-                raise Exception(f"Cannot allocate BANK_{bank.id} to {task.tag}. It is not idle.")
+                raise Exception(f"Cannot allocate BANK_{bank.id} to {kernel.tag}. It is not idle.")
             bank.status = ComponentStatus.used
-            bank.task = task
+            bank.kernel = kernel
         # Initialize prr_mask to None
         self._prr_available_mask = None
         self._bank_available_mask = None
@@ -219,12 +225,12 @@ class Accelerator:
             if prr.status == ComponentStatus.idle:
                 raise Exception(f"Cannot deallocate PRR_{prr.id}. It is already idle.")
             prr.status = ComponentStatus.idle
-            prr.task = None
+            prr.kernel = None
         for bank in banks:
             if bank.status == ComponentStatus.idle:
                 raise Exception(f"Cannot deallocate Bank_{bank.id}. It is already idle.")
             bank.status = ComponentStatus.idle
-            bank.task = None
+            bank.kernel = None
         # Initialize prr_mask to None
         self._prr_available_mask = None
         self._bank_available_mask = None

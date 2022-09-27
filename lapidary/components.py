@@ -1,9 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Tuple
-if TYPE_CHECKING:
-    from lapidary.task import Task
 from enum import Enum
+if TYPE_CHECKING:
+    from lapidary.kernel import Kernel
 
 
 class ComponentStatus(Enum):
@@ -17,7 +17,7 @@ class PRR:
     id: int = 0
     coord: Tuple[int, int] = (0, 0)
     status: ComponentStatus = ComponentStatus.idle
-    task: Optional[Task] = None
+    kernel: Optional[Kernel] = None
     height: int = 0
     width: int = 0
     num_input: int = 0
@@ -28,7 +28,7 @@ class PRR:
 class Bank:
     id: int = 0
     status: ComponentStatus = ComponentStatus.idle
-    task: Optional[Task] = None
+    kernel: Optional[Kernel] = None
     size: int = 0
 
 

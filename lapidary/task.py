@@ -1,57 +1,42 @@
 from __future__ import annotations
-import simpy
-from lapidary.app import AppConfig
-from typing import TYPE_CHECKING, Tuple, List
-if TYPE_CHECKING:
-    from lapidary.components import PRR, Bank
-from enum import Enum
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, List
 import logging
 logger = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from lapidary.kernel import Kernel
 
 
-class TaskStatus(Enum):
-    PENDING = 1
-    RUNNING = 2
-    DONE = 3
+@dataclass
+class Timestamp:
+    generate: int = 0
+    queue: int = 0
 
 
 class Task:
-    def __init__(self, env: simpy.Environment, query_name: str, query_id: int, task_name: str,
-                 app: str, deps: List[str]) -> None:
-        self.env = env
-        self.name = task_name
-        self.query_name = query_name
-        self.query_id = query_id
-        self.app = app
-        self.tag = f"{self.query_name}_#{self.query_id}_{self.name}"
-        self.status = TaskStatus.PENDING
-        self.deps = deps
+    def __init__(self, name: str, id: int, kernels: List[Kernel], ts_generate: int) -> None:
+        self.name = name
+        self.id = id
+        self.tag = f"{self.name}_{self.id}"
+        self.timestamp: Timestamp = Timestamp(generate=ts_generate)
 
-        self.ts_dispatch: int = 0
-        self.ts_queue: int = 0
-        self.ts_schedule: int = 0
-        self.ts_done: int = 0
-        self.prrs: List[PRR] = []
-        self.banks: List[Bank] = []
+        # TODO: We assume Task is composed of kernels with sequential dependency (e.g. DNN layers)
+        self.kernels: List[Kernel]
+        self.next_kernel_idx: int = 0
 
-        self.app_config: AppConfig
+        # task_done event
+        self.evt_task_done = self.env.event()
 
-    def set_app_config(self, app_config: AppConfig) -> None:
-        """Set app configuration."""
-        self.app_config = app_config
+    def set_kernels(self, kernels: List[Kernel]):
+        self.kernels = kernels
 
-    def get_pr_shape(self) -> Tuple[int, int]:
-        """Return partial region shape."""
-        if self.app_config is None:
-            raise Exception(f"app configuration is not set for {self.tag}")
-        else:
-            return self.app_config.prr_shape
+    def get_pending_kernels(self) -> List[Kernel]:
+        return self.kernels[self.next_kernel_idx:]
 
-    def update_deps(self, deps: List[str]):
-        self.deps = deps
+    def get_ready_kernels(self) -> List[Kernel]:
+        return self.kernels[self.next_kernel_idx]
 
-    def set_prrs(self, prrs: List[PRR]) -> None:
-        self.prrs = prrs
-
-    def set_banks(self, banks: List[Bank]) -> None:
-        self.banks = banks
+    def update_dependency(self, kernel: Kernel) -> None:
+        for pending_kernel in self.get_pending_kernels:
+            if kernel.name in pending_kernel.deps:
+                pending_kernel.deps.remove(kernel)

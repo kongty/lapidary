@@ -10,7 +10,9 @@ np.random.seed(10)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CGRA simulation")
     parser.add_argument("--arch", type=str, default="./cfg/hw/amber.yml", help="Path to the architecture config file")
-    parser.add_argument("--workload", type=str, default="./cfg/workload/workload_wddsa_edge.yml",
+    # parser.add_argument("--workload", type=str, default="./cfg/workload/workload_wddsa_edge.yml",
+    #                     help="Path to the workload config file")
+    parser.add_argument("--workload", type=str, default="./cfg/workload/workload_0.yml",
                         help="Path to the workload config file")
     parser.add_argument("--log", action='store_true', help="Path to the log directory")
     args = parser.parse_args()
@@ -60,7 +62,8 @@ if __name__ == "__main__":
     app_pool.add("gaussian", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=16, output=0, runtime=260))
     app_pool.add("gaussian", AppConfig(prr_shape=(1, 4), pe=150, mem=15, input=32, output=0, runtime=130))
 
-    # app_pool.add("app_0", AppConfig(prr_shape=(1, 1), pe=150, mem=15, input=1, output=1, runtime=100))
+    app_pool.add("app_0", AppConfig(prr_shape=(1, 1), pe=150, mem=15,
+                 input=1, output=1, glb_size=10, offchip_bw=10, runtime=100))
     # app_pool.add("app_1", AppConfig(prr_shape=(1, 1), pe=150, mem=15, input=1, output=1, runtime=100))
 
     lapidary = Lapidary(accelerator_config=args.arch, workload_config=args.workload, app_pool=app_pool)

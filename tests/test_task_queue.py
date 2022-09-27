@@ -1,7 +1,7 @@
 import pytest
 import simpy
 from lapidary.task_queue import TaskQueue
-from lapidary.task import Task
+from lapidary.kernel import Kernel
 
 
 @pytest.mark.parametrize('maxsize', [5, 10])
@@ -11,7 +11,7 @@ def test_task_queue_put(maxsize: int, num_tasks: int):
     task_queue = TaskQueue(env, maxsize=maxsize)
 
     for _ in range(num_tasks):
-        task = Task(env, query_name='query', query_id=0, task_name='task', app='app', deps=[])
+        task = Kernel(env, query_name='query', query_id=0, name='task', app='app', deps=[])
         env.process(task_queue.put(task))
 
     env.run(until=100)
@@ -34,7 +34,7 @@ def test_task_queue_block():
         yield env.process(task_queue.get())
 
     for i in range(maxsize + 1):
-        task = Task(env, query_name='query', query_id=0, task_name=i, app='app', deps=[])
+        task = Kernel(env, query_name='query', query_id=0, name=i, app='app', deps=[])
         env.process(put(env, task_queue, task, log))
 
     env.process(get(env, task_queue))

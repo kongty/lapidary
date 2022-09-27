@@ -2,21 +2,23 @@ import simpy
 import os
 import yaml
 from typing import Dict, Optional, Union, List
-from lapidary.query import Query, QueryConfigType
-from lapidary.task_queue import TaskQueue
-from util.logger import Logger
+from lapidary.scheduler import Scheduler
+from lapidary.task_generator import TaskGenerator, TaskGeneratorConfigType
+from lapidary.util.task_logger import TaskLogger
 import logging
 logger = logging.getLogger(__name__)
 
 
 class Workload:
-    def __init__(self, env: simpy.Environment,  config: Optional[Union[str, Dict[str, QueryConfigType]]] = None):
+    def __init__(self, env: simpy.Environment,  config: Optional[Union[str, Dict[str, TaskGeneratorConfigType]]] = None,
+                 task_logger: TaskLogger = None):
         self.env = env
-        self.queries: List[Query] = []
+        self.task_logger = task_logger
+        self.task_generators: List[TaskGenerator] = []
         if config is not None:
             self.set_workload(config)
 
-    def set_workload(self, config: Union[str, Dict[str, QueryConfigType]]) -> None:
+    def set_workload(self, config: Union[str, Dict[str, TaskGeneratorConfigType]]) -> None:
         """Set workload properties with input configuration file."""
         if isinstance(config, str):
             config = os.path.realpath(config)
@@ -30,15 +32,15 @@ class Workload:
         else:
             config_dict = config
 
-        for app_k, app_v in config_dict.items():
-            self.queries.append(Query(self.env, app_k, app_v))
+        for name, config in config_dict.items():
+            self.task_generators.append(TaskGenerator(self.env, name, config, self.task_logger))
 
-    def run_dispatch(self, task_logger: Logger) -> None:
-        """Run dispatch proccess of the queries."""
-        for query in self.queries:
-            self.env.process(query.dispatch(task_logger))
+    def run_generate(self) -> None:
+        """Run generate proccess of the task_generators."""
+        for task_generator in self.task_generators:
+            self.env.process(task_generator.generate())
 
-    def set_task_queue(self, task_queue: TaskQueue) -> None:
-        """Set a task_queue for each query."""
-        for query in self.queries:
-            query.set_task_queue(task_queue)
+    def set_scheduler(self, scheduler: Scheduler) -> None:
+        """Set a scheduler for each task_generator."""
+        for task_generator in self.task_generators:
+            task_generator.set_scheduler(scheduler)

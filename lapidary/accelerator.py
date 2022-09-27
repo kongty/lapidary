@@ -188,7 +188,7 @@ class Accelerator:
     def proc_execute(self, kernel: Kernel) -> Generator[simpy.events.Event, None, None]:
         """Start kernel execution process."""
         yield self.env.timeout(kernel.app_config.runtime)
-        kernel.ts_done = int(self.env.now)
+        kernel.timestamp.done = int(self.env.now)
         logger.info(f"[@ {self.env.now}] {kernel.tag} execution finishes.")
 
         # Controller is a shared resource

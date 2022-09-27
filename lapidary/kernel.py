@@ -31,7 +31,7 @@ class Kernel:
         self.status = KernelStatus.PENDING
         self.deps = deps
 
-        self.timestamp: Timestamp
+        self.timestamp = Timestamp()
 
         self.prrs: List[PRR] = []
         self.banks: List[Bank] = []

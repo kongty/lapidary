@@ -32,13 +32,13 @@ class Workload:
         else:
             config_dict = config
 
-        for name, config in config_dict.items():
-            self.task_generators.append(TaskGenerator(self.env, name, config, self.task_logger))
+        for name, task_gen_config in config_dict.items():
+            self.task_generators.append(TaskGenerator(self.env, name, task_gen_config, self.task_logger))
 
     def run_generate(self) -> None:
         """Run generate proccess of the task_generators."""
         for task_generator in self.task_generators:
-            self.env.process(task_generator.generate())
+            task_generator.generate()
 
     def set_scheduler(self, scheduler: Scheduler) -> None:
         """Set a scheduler for each task_generator."""

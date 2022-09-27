@@ -17,12 +17,16 @@ class KernelConfigType(TypedDict):
     dependencies: List[str]
 
 
-class TaskGeneratorConfigType(TypedDict):
+class DistributionConfigType(TypedDict):
     type: str
     start: int
-    interval: Union[int, List[int]]
+    interval: int
     lambda_: int
     size: int
+
+
+class TaskGeneratorConfigType(TypedDict):
+    dist: DistributionConfigType
     kernels: Dict[str, KernelConfigType]
 
 
@@ -34,9 +38,9 @@ class DistributionType(Enum):
 
 class TaskGeneratorDistribution:
     def __init__(self) -> None:
-        self.type: DistributionType.STREAMING
+        self.type: DistributionType
         self.start = 0
-        self.interval: Union[int, List[int]]
+        self.interval = 0
         self.lambda_ = 0
         self.size = 0
 
@@ -84,27 +88,27 @@ class TaskGenerator:
         """Set a scheduler for each task generator."""
         self.scheduler = scheduler
 
-    def generate(self) -> Generator[simpy.events.Event, None, None]:
+    def generate(self) -> None:
         """Generate tasks and put it in a task queue."""
         if self.dist.type == DistributionType.STREAMING:
-            self.env.process(self._generate_streaming)
+            self.env.process(self._generate_streaming())
         elif self.dist.type == DistributionType.POISSON:
-            self.env.process(self._generate_poisson)
+            self.env.process(self._generate_poisson())
         elif self.dist.type == DistributionType.FIXED:
-            self.env.process(self._generate_fixed)
+            self.env.process(self._generate_fixed())
         else:
             raise DistributionTypeException()
 
     def _create_task(self, id: int) -> Task:
         # Create task
-        task = Task(self.name, id, int(self.env.now))
+        task = Task(self.env, self.name, id)
         # Create kernels
         kernels = []
         for kernel_name, kernel_v in self.kernels.items():
             kernel = Kernel(task, kernel_name, kernel_v['app'], kernel_v['dependencies'])
             kernels.append(kernel)
         kernels = self.kernel_topological_sort(kernels)
-        task.set_kernels(kernels)
+        task.kernels = kernels
         if self.task_logger is not None:
             self.task_logger.add_task(task)
 

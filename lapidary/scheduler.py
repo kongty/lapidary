@@ -1,11 +1,12 @@
 from __future__ import annotations
 import simpy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generator, Any, List
+from typing import TYPE_CHECKING, Generator, Any, List, Optional, Tuple
 from lapidary.components import PRR, Bank
 from lapidary.task_queue import TaskQueue
 from lapidary.kernel import Kernel, KernelStatus
-from lapidary.app import AppConfig, AppPool, NoAppConfigError
+from lapidary.app import AppConfig, AppPool
+from lapidary.util.exceptions import NoAppConfigException
 if TYPE_CHECKING:
     from lapidary.accelerator import Accelerator
 import logging
@@ -19,7 +20,7 @@ class Scheduler(ABC):
         self.task_queue: TaskQueue
         self.app_pool: AppPool
         self.accelerator: Accelerator
-        self.eutmcontroller = simpy.Resource(self.env, capacity=1)
+        self.mut_controller = simpy.Resource(self.env, capacity=1)
 
     def set_accelerator(self, accelerator: Accelerator) -> None:
         self.accelerator = accelerator
@@ -63,66 +64,73 @@ class GreedyScheduler(Scheduler):
                 pass
 
     def schedule(self) -> Generator[simpy.events.Event, None, None]:
-        """Schedule tasks on the accelerator and return a list of tasks that are scheduled."""
+        """Schedule kernels on the accelerator and return a list of kernels that are scheduled."""
         logger.info(f"[@ {self.env.now}] Call schedule.")
-        kernels = self.select_kernels(accelerator=self.accelerator)
-        logger.info(f"[@ {self.env.now}] Number of tasks being scheduled: {len(kernels)}")
+
         # schedule delay
         yield self.env.timeout(self.delay)
+
+        # Select kernels to run
+        kernels = self.select_kernels()
+        logger.info(f"[@ {self.env.now}] Number of tasks being scheduled: {len(kernels)}")
 
         for kernel in kernels:
             logger.info(f"[@ {self.env.now}] {kernel.tag} is scheduled to prr{list(map(lambda x: x.id, kernel.prrs))}, "
                         f"bank {list(map(lambda x: x.id, kernel.banks))}.")
-            yield self.env.process(self.task_queue.remove(kernel))
-            kernel.ts_schedule = int(self.env.now)
-            # TODO: Change kernel status to RUNNING
+            # yield self.env.process(self.task_queue.remove(kernel))
+            kernel.timestamp.schedule = int(self.env.now)
+            kernel.status = KernelStatus.RUNNING
             self.accelerator.execute(kernel)
 
     def select_kernels(self) -> List[Kernel]:
-        # list of tasks that are scheduled
-        tasks = []
+        # selected kernels list
+        kernels = []
 
-        # Search all tasks in the task queue
-        q_tmp = self.task_queue.q.copy()
-        for task in q_tmp:
-            # Break if the task cannot be mapped.
-            if len(task.deps) != 0:
+        # Search kernels in the ready_kernels queue
+        for kernel in self.task_queue.get_ready_kernels():
+            app_config, prrs, banks = self.select_app_config(kernel)
+
+            # If map is not available, then continue
+            if app_config is None:
                 continue
-
-            # Get app_config candidates from an app_pool
-            app_config_list = self.app_pool.get(task.app)
-            # Raise an error if there is no possible app config
-            if len(app_config_list) == 0:
-                raise NoAppConfigError(f"There is no app_config for {task.app} in the app_pool.")
-
-            # TODO: Optimize by choosing the best bitstream from the app_pool.
-            # For now, we just use the first available app_config from the app_pool.
-            is_mapped = False
-            runtime = 0
-            selected_app_config: AppConfig = None
-            selected_prrs: List[PRR] = []
-            selected_banks: List[Bank] = []
-            for app_config in app_config_list:
-                prrs, banks = self.accelerator.map(app_config)
-                if len(prrs) > 0:
-                    if runtime == 0:
-                        runtime = app_config.runtime
-                        selected_app_config = app_config
-                        selected_prrs = prrs
-                        selected_banks = banks
-                    elif app_config.runtime < runtime:
-                        runtime = app_config.runtime
-                        selected_app_config = app_config
-                        selected_prrs = prrs
-                        selected_banks = banks
-                    is_mapped = True
-
-            if is_mapped is False:
-                continue
-
             # Set app_config for the task
-            task.set_app_config(selected_app_config)
-            self.accelerator.allocate(task, selected_prrs, selected_banks)
-            tasks.append(task)
+            kernel.set_app_config(app_config)
+            self.accelerator.allocate(kernel, prrs, banks)
+            kernels.append(kernel)
 
-        return tasks
+        return kernels
+
+    def select_app_config(self, kernel: Kernel) -> Tuple[Optional[AppConfig], List[PRR], List[Bank]]:
+        """
+        TODO:
+        For now, we select app_config, and hardware resources in the same function. It can be changed in the future.
+        e.g. First select the amount of resources and then dataflow.
+        """
+        # Get app_config candidates from an app_pool
+        app_config_list = self.app_pool.get(kernel.app)
+
+        # Raise an error if there is no possible app config
+        if len(app_config_list) == 0:
+            raise NoAppConfigException(f"There is no app_config for {kernel.app} in the app_pool.")
+
+        # TODO: Implement how to choose best target app from app_pool
+        # For now, we just use the first available app_config from the app_pool.
+        runtime = 0
+        selected_app_config: Optional[AppConfig] = None
+        selected_prrs: List[PRR] = []
+        selected_banks: List[Bank] = []
+        for app_config in app_config_list:
+            prrs, banks = self.accelerator.map(app_config)
+            if len(prrs) > 0:
+                if runtime == 0:
+                    runtime = app_config.runtime
+                    selected_app_config = app_config
+                    selected_prrs = prrs
+                    selected_banks = banks
+                elif app_config.runtime < runtime:
+                    runtime = app_config.runtime
+                    selected_app_config = app_config
+                    selected_prrs = prrs
+                    selected_banks = banks
+
+        return selected_app_config, selected_prrs, selected_banks

@@ -32,14 +32,19 @@ class TaskLogger:
         self.kernel_df.set_index('tag', inplace=True)
 
     def update_df(self) -> None:
-        kernel_dict = {'tag': [task.tag for task in self.task_list],
-                       'query': [task.query_name for task in self.task_list],
-                       'query_id': [task.query_id for task in self.task_list],
-                       'kernel': [task.name for task in self.task_list],
-                       'ts_dispatch': [task.ts_dispatch for task in self.task_list],
-                       'ts_queue': [task.ts_queue for task in self.task_list],
-                       'ts_schedule': [task.ts_schedule for task in self.task_list],
-                       'ts_done': [task.ts_done for task in self.task_list]}
+        # TODO: Need to change kernel dict and task dict. Need to decide what to store
+        # TODO: For now, we just flatten all kernels
+        kernel_list = []
+        for task in self.task_list:
+            kernel_list += task.kernels
+        kernel_dict = {'tag': [kernel.tag for kernel in kernel_list],
+                       'query': [kernel.task.name for kernel in kernel_list],
+                       'query_id': [kernel.task.id for kernel in kernel_list],
+                       'kernel': [kernel.name for kernel in kernel_list],
+                       'ts_dispatch': [kernel.task.timestamp.generate for kernel in kernel_list],
+                       'ts_queue': [kernel.task.timestamp.queue for kernel in kernel_list],
+                       'ts_schedule': [kernel.timestamp.schedule for kernel in kernel_list],
+                       'ts_done': [kernel.timestamp.done for kernel in kernel_list]}
         kernel_prr_dict: Dict[str, List[int]] = {}
         for i in range(self.num_prr):
             kernel_prr_dict[f"prr{i}"] = []

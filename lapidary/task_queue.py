@@ -38,20 +38,11 @@ class TaskQueue:
         self.evt_task_arrive.succeed(value=task)
         self.evt_task_arrive = self.env.event()
 
-    # def peek(self, idx: int = 0) -> Task:
-    #     return self.q[idx]
-
-    # def get(self, task: Optional[Kernel] = None) -> Generator[simpy.events.Event, None, Kernel]:
-    #     if task is None:
-    #         yield self.env.process(self._get())
-    #         result = self.q.pop(0)
-    #     elif task in self.q:
-    #         result = task
-    #         yield self.env.process(self._get())
-    #         self.q.remove(task)
-    #     else:
-    #         raise Exception(f"{task.tag} is not in the queue.")
-    #     return result
+    def get_ready_kernels(self) -> List[Kernel]:
+        ready_kernels = []
+        for task in self.q:
+            ready_kernels += task.ready_kernels
+        return ready_kernels
 
     def _get(self) -> Generator[simpy.events.Event, None, None]:
         yield self._q.get(amount=1)
@@ -63,11 +54,11 @@ class TaskQueue:
 
     def update_kernel_done(self, kernel: Kernel) -> None:
         # kernel status update
-        kernel.status = KernelStatus.Done
+        kernel.status = KernelStatus.DONE
         # dependency update
         task = kernel.task
         task.update_dependency(kernel)
-        task.next_kernel_idx += 1
-        if len(task.get_pending_kernels()) == 0:
+        if len(task.pending_kernels) == 0:
             self.remove(task)
+            task.timestamp.done = int(self.env.now)
             task.evt_task_done.succeed()

@@ -25,7 +25,3 @@ class AppPool:
 
     def get(self, app: str) -> List[AppConfig]:
         return self.app_pool[app]
-
-
-class NoAppConfigError(Exception):
-    pass

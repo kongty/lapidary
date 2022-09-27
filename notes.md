@@ -43,8 +43,6 @@ virtualization and fast-DPR provides mechanisms for sharing CGRAs but not managi
 Host to manage task parallelism and task launches: It's hard.
 on-chip task scheduling and launching capabiliteis . low-latency dynamic task parallelism.. on-chip exchange of values.
 
-
-
 preliminary prototype. speedup compared to.
 SLO: tail-latency
 ASSUME REQUEST QUEUES ARE ALWAYS SATURATED, THEREBY ISOLATING MODEL SERVICE LATENCY FROM REQUEST QUEUING LATENCY.
@@ -52,7 +50,6 @@ Two-level schedule (instruction, task)
 Monitor latency per-kernel. Reallocating resources between tenants on the fly.
 resource-efficiency, latency predictability, isolation
 application level graph! vs kernel level graph.
-
 
 Batch mode scheduling vs immediate mode scheduling.
 

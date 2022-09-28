@@ -88,17 +88,6 @@ class TaskGenerator:
         """Set a scheduler for each task generator."""
         self.scheduler = scheduler
 
-    def generate(self) -> None:
-        """Generate tasks and put it in a task queue."""
-        if self.dist.type == DistributionType.STREAMING:
-            self.env.process(self._generate_streaming())
-        elif self.dist.type == DistributionType.POISSON:
-            self.env.process(self._generate_poisson())
-        elif self.dist.type == DistributionType.FIXED:
-            self.env.process(self._generate_fixed())
-        else:
-            raise DistributionTypeException()
-
     def _create_task(self, id: int) -> Task:
         # Create task
         task = Task(self.env, self.name, id)
@@ -114,6 +103,17 @@ class TaskGenerator:
 
         return task
 
+    def generate(self) -> None:
+        """Generate tasks and put it in a task queue."""
+        if self.dist.type == DistributionType.STREAMING:
+            self.env.process(self._generate_streaming())
+        elif self.dist.type == DistributionType.POISSON:
+            self.env.process(self._generate_poisson())
+        elif self.dist.type == DistributionType.FIXED:
+            self.env.process(self._generate_fixed())
+        else:
+            raise DistributionTypeException()
+
     def _generate_streaming(self) -> Generator[simpy.events.Event, None, None]:
         yield self.env.timeout(self.dist.start)
         id = 1
@@ -122,6 +122,8 @@ class TaskGenerator:
             # TODO: Do I need to acquire controller?
             yield self.env.process(self.scheduler.task_queue.put(task))
             yield task.evt_task_done
+            if id == self.dist.size:
+                break
             id += 1
 
     def _generate_poisson(self) -> Generator[simpy.events.Event, None, None]:
@@ -130,7 +132,7 @@ class TaskGenerator:
         intervals = list(np.random.poisson(self.dist.lambda_, NUM_INTERVALS))
         wait_time = 0
         id = 1
-        while True:
+        for id in range(1, self.dist.size + 1):
             if id == 1:
                 yield self.env.timeout(self.dist.start)
             else:
@@ -148,6 +150,8 @@ class TaskGenerator:
             if wait_time > 0:
                 logger.warning(f"[@ {self.env.now}] {task.tag} has been blocked for {wait_time}.")
 
+            if id == self.dist.size:
+                break
             id += 1
 
     def _generate_fixed(self) -> Generator[simpy.events.Event, None, None]:
@@ -172,6 +176,8 @@ class TaskGenerator:
             if wait_time > 0:
                 logger.warning(f"[@ {self.env.now}] {task.tag} has been blocked for {wait_time}.")
 
+            if id == self.dist.size:
+                break
             id += 1
 
     def kernel_topological_sort(self, kernels: List[Kernel]) -> List[Kernel]:

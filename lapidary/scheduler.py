@@ -46,7 +46,7 @@ class GreedyScheduler(Scheduler):
     def __init__(self, env: simpy.Environment) -> None:
         super().__init__(env)
         self.task_queue = TaskQueue(self.env, maxsize=100)
-        self.delay = 1000
+        self.delay = 100
 
     def proc_schedule(self) -> Generator[simpy.events.Event, simpy.events.ConditionValue,
                                          None]:
@@ -55,7 +55,7 @@ class GreedyScheduler(Scheduler):
             triggered = yield self.task_queue.evt_task_arrive | self.accelerator.evt_kernel_done
             if self.accelerator.evt_kernel_done in triggered:
                 kernel, mut_kernel_done = triggered[self.accelerator.evt_kernel_done]
-                self.task_queue.update_kernel_done(kernel=kernel)
+                yield self.env.process(self.task_queue.update_kernel_done(kernel=kernel))
                 self.accelerator.acknowledge_kernel_done(mut_kernel_done)
             try:
                 yield self.env.process(self.schedule())
@@ -65,8 +65,12 @@ class GreedyScheduler(Scheduler):
 
     def schedule(self) -> Generator[simpy.events.Event, None, None]:
         """Schedule kernels on the accelerator and return a list of kernels that are scheduled."""
-        logger.info(f"[@ {self.env.now}] Call schedule.")
 
+        # If there is no ready kernel, just pass
+        if len(self.task_queue.get_ready_kernels()) == 0:
+            return
+
+        logger.info(f"[@ {self.env.now}] Call schedule.")
         # schedule delay
         yield self.env.timeout(self.delay)
 
@@ -77,9 +81,7 @@ class GreedyScheduler(Scheduler):
         for kernel in kernels:
             logger.info(f"[@ {self.env.now}] {kernel.tag} is scheduled to prr{list(map(lambda x: x.id, kernel.prrs))}, "
                         f"bank {list(map(lambda x: x.id, kernel.banks))}.")
-            # yield self.env.process(self.task_queue.remove(kernel))
-            kernel.timestamp.schedule = int(self.env.now)
-            kernel.status = KernelStatus.RUNNING
+            self.task_queue.update_kernel_scheduled(kernel=kernel)
             self.accelerator.execute(kernel)
 
     def select_kernels(self) -> List[Kernel]:

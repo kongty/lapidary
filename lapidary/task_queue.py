@@ -33,7 +33,7 @@ class TaskQueue:
         yield self._q.put(amount=1)
         self.q.append(task)
         task.timestamp.queue = int(self.env.now)
-        logger.info(f"[@ {self.env.now}] {task.tag} is added to a queue.")
+        logger.info(f"[@ {self.env.now}] {task.tag} is added to a task queue.")
 
         self.evt_task_arrive.succeed(value=task)
         self.evt_task_arrive = self.env.event()
@@ -44,21 +44,26 @@ class TaskQueue:
             ready_kernels += task.ready_kernels
         return ready_kernels
 
-    def _get(self) -> Generator[simpy.events.Event, None, None]:
-        yield self._q.get(amount=1)
-
     def remove(self, task: Task) -> Generator[simpy.events.Event, None, None]:
         logger.info(f"[@ {self.env.now}] {task.tag} is removed from a queue.")
         self.q.remove(task)
-        yield self.env.process(self._get())
+        yield self._q.get(amount=1)
 
-    def update_kernel_done(self, kernel: Kernel) -> None:
+    def update_kernel_done(self, kernel: Kernel) -> Generator[simpy.events.Event, None, None]:
         # kernel status update
         kernel.status = KernelStatus.DONE
         # dependency update
         task = kernel.task
         task.update_dependency(kernel)
         if len(task.pending_kernels) == 0:
-            self.remove(task)
+            yield self.env.process(self.remove(task))
             task.timestamp.done = int(self.env.now)
             task.evt_task_done.succeed()
+
+    def update_kernel_scheduled(self, kernel: Kernel) -> None:
+        # timestamp update
+        kernel.timestamp.schedule = int(self.env.now)
+        # kernel status update
+        kernel.status = KernelStatus.RUNNING
+        # task next kernel_idx update
+        kernel.task.next_kernel_idx += 1

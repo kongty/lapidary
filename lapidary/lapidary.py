@@ -40,16 +40,18 @@ class Lapidary:
         self.scheduler.run()
         self.env.run(until=until)
 
-        self.task_logger.update_df()
-        logger.info(f"ANTT: {self.task_logger.calculate_antt()}")
-        logger.info(f"STP: {self.task_logger.calculate_stp()}")
-        logger.info(f"Total utilization: {self.task_logger.calculate_utilization()}")
-
     def dump_logs(self, dir: str) -> None:
+        self.task_logger.post_process()
+
         dir = os.path.realpath(dir)
         if not os.path.exists(dir):
             os.makedirs(dir)
 
-        self.task_logger.update_df()
         self.task_logger.dump_task_df(os.path.join(dir, "task.csv"))
+        self.task_logger.dump_kernel_df(os.path.join(dir, "kernel.csv"))
         self.task_logger.dump_perf(os.path.join(dir, "perf.txt"))
+
+        logger.info(f"Tail latency: {self.task_logger.tail_latency}")
+        # logger.info(f"ANTT: {self.task_logger.antt}")
+        # logger.info(f"STP: {self.task_logger.stp}")
+        # logger.info(f"Total utilization: {self.task_logger.utilization}")

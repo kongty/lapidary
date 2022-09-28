@@ -1,72 +1,27 @@
-query_0:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 50
-  dist_size: 10
-  tasks:
-    task_0:
+query0:
+  dist:
+    type: "stream"
+    start: 0
+    size: 10
+    delay: 10
+  kernels:
+    kernel_0:
       app: "app_0"
       dependencies: []
-query_1:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 50
-  dist_size: 10
-  tasks:
-    task_0:
+    kernel_1:
+      app: "app_1"
+      dependencies: [kernel_0]
+
+query1:
+  dist:
+    type: "stream"
+    start: 0
+    size: 10
+    delay: 10
+  kernels:
+    kernel_0:
       app: "app_0"
       dependencies: []
-query_2:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 50
-  dist_size: 10
-  tasks:
-    task_0:
-      app: "app_0"
-      dependencies: []
-query_3:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 50
-  dist_size: 10
-  tasks:
-    task_0:
-      app: "app_0"
-      dependencies: []
-query_4:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 50
-  dist_size: 10
-  tasks:
-    task_0:
+    kernel_1:
       app: "app_1"
-      dependencies: []
-query_5:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 50
-  dist_size: 10
-  tasks:
-    task_0:
-      app: "app_1"
-      dependencies: []
-query_6:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 50
-  dist_size: 10
-  tasks:
-    task_0:
-      app: "app_1"
-      dependencies: []
-query_7:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 50
-  dist_size: 10
-  tasks:
-    task_0:
-      app: "app_1"
-      dependencies: []
+      dependencies: [kernel_0]

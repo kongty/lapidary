@@ -14,7 +14,6 @@ class TaskQueue:
         self.maxsize = maxsize
         self._q = simpy.Container(self.env, init=0, capacity=self.maxsize)  # simpy container
         self.evt_task_arrive = self.env.event()
-        self.evt_task_arrive_ack = self.env.event()
 
         self._controller = simpy.Resource(self.env, capacity=1)
 

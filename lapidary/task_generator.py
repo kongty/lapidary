@@ -23,6 +23,7 @@ class DistributionConfigType(TypedDict):
     interval: int
     lambda_: int
     size: int
+    delay: int
 
 
 class TaskGeneratorConfigType(TypedDict):
@@ -31,7 +32,7 @@ class TaskGeneratorConfigType(TypedDict):
 
 
 class DistributionType(Enum):
-    STREAMING = 0
+    STREAM = 0
     POISSON = 1
     FIXED = 2
 
@@ -43,12 +44,14 @@ class TaskGeneratorDistribution:
         self.interval = 0
         self.lambda_ = 0
         self.size = 0
+        self.delay = 0
 
     def set_distribution(self, config) -> None:
-        if config['type'] == 'streaming':
-            self.type = DistributionType.STREAMING
+        if config['type'] == 'stream':
+            self.type = DistributionType.STREAM
             self.start = config['start']
             self.size = config['size']
+            self.delay = config['delay']
         elif config['type'] == 'poisson':
             self.type = DistributionType.POISSON
             self.start = config['start']
@@ -107,8 +110,8 @@ class TaskGenerator:
 
     def generate(self) -> None:
         """Generate tasks and put it in a task queue."""
-        if self.dist.type == DistributionType.STREAMING:
-            self.env.process(self._generate_streaming())
+        if self.dist.type == DistributionType.STREAM:
+            self.env.process(self._generate_stream())
         elif self.dist.type == DistributionType.POISSON:
             self.env.process(self._generate_poisson())
         elif self.dist.type == DistributionType.FIXED:
@@ -116,14 +119,16 @@ class TaskGenerator:
         else:
             raise DistributionTypeException()
 
-    def _generate_streaming(self) -> Generator[simpy.events.Event, None, None]:
+    def _generate_stream(self) -> Generator[simpy.events.Event, None, None]:
         yield self.env.timeout(self.dist.start)
         id = 1
         while True:
             task = self._create_task(id)
+            logger.info(f"[@ {self.env.now}] {task.tag} is generated.")
             # TODO: Do I need to acquire controller?
             yield self.env.process(self.scheduler.task_queue.put(task))
             yield task.evt_task_done
+            yield self.env.timeout(self.dist.delay)  # delay to generate new stream
             if id == self.dist.size:
                 break
             id += 1

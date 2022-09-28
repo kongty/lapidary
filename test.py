@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     app_pool.add("app_0", AppConfig(prr_shape=(1, 1), pe=150, mem=15,
                  input=1, output=1, glb_size=10, offchip_bw=10, runtime=100))
-    # app_pool.add("app_1", AppConfig(prr_shape=(1, 1), pe=150, mem=15, input=1, output=1, runtime=100))
+    app_pool.add("app_1", AppConfig(prr_shape=(1, 1), pe=150, mem=15, input=1, output=1, runtime=100))
 
     lapidary = Lapidary(accelerator_config=args.arch, workload_config=args.workload, app_pool=app_pool)
     lapidary.run()

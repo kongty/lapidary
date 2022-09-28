@@ -36,7 +36,7 @@
 #       app: "app_1"
 #       dependencies: [task_1, task_2]
 
-query_0:
+query0:
   dist:
     type: "fixed" # manual or fixed or poisson or stream
     start: 0 # Can be random number in a range
@@ -46,6 +46,9 @@ query_0:
     kernel_0:
       app: "app_0"
       dependencies: []
+    kernel_1:
+      app: "app_1"
+      dependencies: [kernel_0]
     # gaussian:
     #   app: "gaussian"
     #   dependencies: [cp]

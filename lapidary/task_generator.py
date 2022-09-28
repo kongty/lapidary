@@ -94,7 +94,9 @@ class TaskGenerator:
         # Create kernels
         kernels = []
         for kernel_name, kernel_v in self.kernels.items():
-            kernel = Kernel(task, kernel_name, kernel_v['app'], kernel_v['dependencies'])
+            kernel_app = kernel_v['app']
+            kernel_deps = [dep for dep in kernel_v['dependencies']]
+            kernel = Kernel(task, kernel_name, kernel_app, kernel_deps)
             kernels.append(kernel)
         kernels = self.kernel_topological_sort(kernels)
         task.kernels = kernels

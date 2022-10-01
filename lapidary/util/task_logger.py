@@ -21,6 +21,7 @@ class TaskLogger:
         self.kernel_df = pd.DataFrame(columns=['tag', 'kernel', 'task', 'task_id',
                                                'ts_generate', 'ts_queue', 'ts_schedule', 'ts_done', 'prr'])
 
+        self.latency: Dict[str, float] = {}
         self.tail_latency: Dict[str, Dict[float, float]] = {}
         # self.stp: float = 0.
         # self.antt: Dict[str, float] = {}
@@ -45,6 +46,7 @@ class TaskLogger:
         self._generate_task_df()
         self._generate_kernel_df()
 
+        self.update_latency()
         self.update_tail_latency()
         # self.update_antt()
         # self.update_stp()
@@ -97,6 +99,11 @@ class TaskLogger:
     def dump_kernel_df(self, filename: str) -> None:
         logger.info(f"A kernel log file was generated: {filename}")
         self.kernel_df.to_csv(filename)
+
+    def update_latency(self) -> None:
+        for task in self.task_df['task'].unique():
+            self.latency[task] = self.task_df.loc[self.task_df['task']
+                                                  == task]['latency'].mean()
 
     def update_tail_latency(self) -> None:
         for task in self.task_df['task'].unique():

@@ -1,5 +1,5 @@
 import simpy
-from lapidary.query import TaskGenerator
+from lapidary.task_generator import TaskGenerator
 from lapidary.task_queue import TaskQueue
 from .test_configs import query_config
 

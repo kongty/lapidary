@@ -70,17 +70,17 @@ class GreedyScheduler(Scheduler):
         if len(self.task_queue.get_ready_kernels()) == 0:
             return
 
-        logger.info(f"[@ {self.env.now}] Call schedule.")
+        logger.debug(f"[@ {self.env.now}] Call schedule.")
         # schedule delay
         yield self.env.timeout(self.delay)
 
         # Select kernels to run
         kernels = self.select_kernels()
-        logger.info(f"[@ {self.env.now}] Number of tasks being scheduled: {len(kernels)}")
+        logger.debug(f"[@ {self.env.now}] Number of tasks being scheduled: {len(kernels)}")
 
         for kernel in kernels:
-            logger.info(f"[@ {self.env.now}] {kernel.tag} is scheduled to prr{list(map(lambda x: x.id, kernel.prrs))}, "
-                        f"bank {list(map(lambda x: x.id, kernel.banks))}.")
+            logger.debug(f"[@ {self.env.now}] {kernel.tag} is scheduled to prr{list(map(lambda x: x.id, kernel.prrs))},"
+                         f" bank {list(map(lambda x: x.id, kernel.banks))}.")
             self.task_queue.update_kernel_scheduled(kernel=kernel)
             self.accelerator.execute(kernel)
 

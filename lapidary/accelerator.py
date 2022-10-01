@@ -182,14 +182,14 @@ class Accelerator:
 
     def execute(self, kernel: Kernel) -> None:
         """Start kernel execution process."""
-        logger.info(f"[@ {self.env.now}] {kernel.tag} execution starts.")
+        logger.debug(f"[@ {self.env.now}] {kernel.tag} execution starts.")
         self.env.process(self.proc_execute(kernel))
 
     def proc_execute(self, kernel: Kernel) -> Generator[simpy.events.Event, None, None]:
         """Start kernel execution process."""
         yield self.env.timeout(kernel.app_config.runtime)
         kernel.timestamp.done = int(self.env.now)
-        logger.info(f"[@ {self.env.now}] {kernel.tag} execution finishes.")
+        logger.debug(f"[@ {self.env.now}] {kernel.tag} execution finishes.")
 
         # Controller is a shared resource
         mut_kernel_done = self.scheduler.mut_controller.request()

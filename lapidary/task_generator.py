@@ -124,7 +124,7 @@ class TaskGenerator:
         id = 1
         while True:
             task = self._create_task(id)
-            logger.info(f"[@ {self.env.now}] {task.tag} is generated.")
+            logger.debug(f"[@ {self.env.now}] {task.tag} is generated.")
             # TODO: Do I need to acquire controller?
             yield self.env.process(self.scheduler.task_queue.put(task))
             yield task.evt_task_done
@@ -147,7 +147,7 @@ class TaskGenerator:
                 interval = max(intervals[(id - 1) % NUM_INTERVALS] - wait_time, 0)
                 yield self.env.timeout(interval)
             task = self._create_task(id)
-            logger.info(f"[@ {self.env.now}] {task.tag} is generated.")
+            logger.debug(f"[@ {self.env.now}] {task.tag} is generated.")
 
             wait_start = int(self.env.now)
             yield self.env.process(self.scheduler.task_queue.put(task))
@@ -173,7 +173,7 @@ class TaskGenerator:
                 interval = max(self.dist.interval - wait_time, 0)
                 yield self.env.timeout(interval)
             task = self._create_task(id)
-            logger.info(f"[@ {self.env.now}] {task.tag} is generated.")
+            logger.debug(f"[@ {self.env.now}] {task.tag} is generated.")
 
             wait_start = int(self.env.now)
             yield self.env.process(self.scheduler.task_queue.put(task))

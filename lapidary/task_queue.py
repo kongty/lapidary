@@ -32,7 +32,7 @@ class TaskQueue:
         yield self._q.put(amount=1)
         self.q.append(task)
         task.timestamp.queue = int(self.env.now)
-        logger.info(f"[@ {self.env.now}] {task.tag} is added to a task queue.")
+        logger.debug(f"[@ {self.env.now}] {task.tag} is added to a task queue.")
 
         self.evt_task_arrive.succeed(value=task)
         self.evt_task_arrive = self.env.event()
@@ -44,7 +44,7 @@ class TaskQueue:
         return ready_kernels
 
     def remove(self, task: Task) -> Generator[simpy.events.Event, None, None]:
-        logger.info(f"[@ {self.env.now}] {task.tag} is removed from a queue.")
+        logger.debug(f"[@ {self.env.now}] {task.tag} is removed from a queue.")
         self.q.remove(task)
         yield self._q.get(amount=1)
 

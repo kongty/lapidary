@@ -3,7 +3,7 @@ query0:
     type: "stream"
     start: 0
     size: 10
-    delay: 10
+    delay: 1
   kernels:
     kernel_0:
       app: "app_0"
@@ -17,7 +17,7 @@ query1:
     type: "stream"
     start: 0
     size: 10
-    delay: 10
+    delay: 1
   kernels:
     kernel_0:
       app: "app_0"

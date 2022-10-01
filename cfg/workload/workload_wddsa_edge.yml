@@ -4,6 +4,7 @@ resnet:
     start: 0 # Can be random number in a range
     lambda: 75000
     size: 200
+    delay: 1
   kernels:
     conv1:
       app: "rn_conv1"
@@ -59,17 +60,21 @@ resnet:
 
 lane_detection:
   dist:
-    type: "fixed" # manual or fixed or poisson or stream
+    type: "stream" # manual or fixed or poisson or stream
     start: 0 # Can be random number in a range
     interval: 15000
     size: 1000
+    delay: 1
   kernels:
     cp:
       app: "cp"
       dependencies: []
+    stereo:
+      app: "stereo"
+      dependencies: [cp]
     gaussian:
       app: "gaussian"
-      dependencies: [cp]
+      dependencies: [stereo]
     harris:
       app: "harris"
       dependencies: [gaussian]

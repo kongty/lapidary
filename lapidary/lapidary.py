@@ -52,6 +52,7 @@ class Lapidary:
         self.task_logger.dump_perf(os.path.join(dir, "perf.txt"))
 
         logger.info(f"Tail latency: {self.task_logger.tail_latency}")
+        logger.info(f"Average latency: {self.task_logger.latency}")
         # logger.info(f"ANTT: {self.task_logger.antt}")
         # logger.info(f"STP: {self.task_logger.stp}")
         # logger.info(f"Total utilization: {self.task_logger.utilization}")

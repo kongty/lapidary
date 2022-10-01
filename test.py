@@ -10,10 +10,10 @@ np.random.seed(10)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CGRA simulation")
     parser.add_argument("--arch", type=str, default="./cfg/hw/amber.yml", help="Path to the architecture config file")
-    # parser.add_argument("--workload", type=str, default="./cfg/workload/workload_wddsa_edge.yml",
-    #                     help="Path to the workload config file")
-    parser.add_argument("--workload", type=str, default="./cfg/workload/workload_1.yml",
+    parser.add_argument("--workload", type=str, default="./cfg/workload/workload_wddsa_edge.yml",
                         help="Path to the workload config file")
+    # parser.add_argument("--workload", type=str, default="./cfg/workload/workload_1.yml",
+    #                     help="Path to the workload config file")
     parser.add_argument("--log", action='store_true', help="Path to the log directory")
     args = parser.parse_args()
 

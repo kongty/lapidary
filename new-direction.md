@@ -62,3 +62,7 @@ Dataflow overlay vs mapping/pnr
 Can we do some polyhedral analysis to map multiple tasks simulatenously on the same memory unit instaed of space sharing it?!
 Compute/Reconfig/Compute/Reconfig
 Edge case: dynamically change dataflow
+Can we have both sparse PE and dense PE on CGRA. DSE.
+graph analytics.
+CGRA for sparsity and graph analytics!
+

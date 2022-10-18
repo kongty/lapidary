@@ -45,7 +45,7 @@ class Scheduler(ABC):
 class GreedyScheduler(Scheduler):
     def __init__(self, env: simpy.Environment) -> None:
         super().__init__(env)
-        self.task_queue = TaskQueue(self.env, maxsize=100)
+        self.task_queue = TaskQueue(self.env, maxsize=1)
         self.delay = 100
 
     def proc_schedule(self) -> Generator[simpy.events.Event, simpy.events.ConditionValue,
@@ -62,6 +62,20 @@ class GreedyScheduler(Scheduler):
             except simpy.Interrupt:
                 # Interrupt when new task arrives while scheduling
                 pass
+
+        # Baseline
+        # while True:
+        #     triggered = yield self.task_queue.evt_task_arrive | self.task_queue.evt_task_done | self.accelerator.evt_kernel_done
+        #     if self.accelerator.evt_kernel_done in triggered:
+        #         kernel, mut_kernel_done = triggered[self.accelerator.evt_kernel_done]
+        #         yield self.env.process(self.task_queue.update_kernel_done(kernel=kernel))
+        #         self.accelerator.acknowledge_kernel_done(mut_kernel_done)
+        #     else:
+        #         try:
+        #             yield self.env.process(self.schedule())
+        #         except simpy.Interrupt:
+        #             # Interrupt when new task arrives while scheduling
+        #             pass
 
     def schedule(self) -> Generator[simpy.events.Event, None, None]:
         """Schedule kernels on the accelerator and return a list of kernels that are scheduled."""

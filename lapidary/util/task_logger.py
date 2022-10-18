@@ -62,7 +62,7 @@ class TaskLogger:
 
         self.task_df = pd.DataFrame(data=task_dict)
         self.task_df.set_index('tag', inplace=True)
-        self.task_df['latency'] = self.task_df['ts_done'] - self.task_df['ts_queue']
+        self.task_df['latency'] = self.task_df['ts_done'] - self.task_df['ts_generate']
 
     def _generate_kernel_df(self) -> None:
         kernel_list = []

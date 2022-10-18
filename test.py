@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument("--log", action='store_true', help="Path to the log directory")
     args = parser.parse_args()
 
-    logging.basicConfig(format='%(levelname)s: %(message)s', stream=sys.stdout, level=logging.INFO)
+    logging.basicConfig(format='%(levelname)s: %(message)s', stream=sys.stdout, level=logging.DEBUG)
 
     app_pool = AppPool("app_pool_0")
     app_pool.add("rn_conv1", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=14, output=0, runtime=2458))
@@ -28,6 +28,8 @@ if __name__ == "__main__":
     app_pool.add("rn_conv3", AppConfig(prr_shape=(1, 6), pe=150, mem=15, input=4, output=0, runtime=226))
     app_pool.add("rn_conv4", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=6, output=0, runtime=903))
     app_pool.add("rn_conv4", AppConfig(prr_shape=(1, 6), pe=150, mem=15, input=6, output=0, runtime=226))
+    app_pool.add("rn_conv5", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=16, output=0, runtime=1203))
+    app_pool.add("rn_conv5", AppConfig(prr_shape=(1, 6), pe=150, mem=15, input=16, output=0, runtime=324))
     app_pool.add("rn_conv5", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=20, output=0, runtime=903))
     app_pool.add("rn_conv5", AppConfig(prr_shape=(1, 6), pe=150, mem=15, input=20, output=0, runtime=226))
 

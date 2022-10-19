@@ -1,0 +1,14 @@
+gen_1:
+  dist:
+    type: "poisson" # manual or fixed or poisson or stream
+    start: 0 # Can be random number in a range
+    lambda: 75000
+    size: 200
+    delay: 1
+  tasks:
+    resnet:
+      model: "resnet-18"
+      dependencies: []
+    resnet2:
+      model: "resnet-18"
+      dependencies: [resnet]

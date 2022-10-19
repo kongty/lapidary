@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class AppConfig:
+class LayerConfig:
     prr_shape: Tuple[int, int] = (0, 0)
     pe: int = 0
     mem: int = 0
@@ -15,13 +15,13 @@ class AppConfig:
     runtime: int = 0
 
 
-class AppPool:
+class DNNPool:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.app_pool: Dict[str, List[AppConfig]] = defaultdict(list)
+        self.app_pool: Dict[str, List[LayerConfig]] = defaultdict(list)
 
-    def add(self, app: str, app_config: AppConfig) -> None:
+    def add(self, app: str, app_config: LayerConfig) -> None:
         self.app_pool[app].append(app_config)
 
-    def get(self, app: str) -> List[AppConfig]:
+    def get(self, app: str) -> List[LayerConfig]:
         return self.app_pool[app]

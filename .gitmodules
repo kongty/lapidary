@@ -1,0 +1,3 @@
+[submodule "pymaestro"]
+	path = pymaestro
+	url = git@github.com:kongty/pymaestro.git

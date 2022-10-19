@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Generator, Any, List, Optional, Tuple
 from lapidary.components import PRR, Bank
 from lapidary.task_queue import TaskQueue
 from lapidary.kernel import Kernel, KernelStatus
-from lapidary.app import AppConfig, AppPool
+from lapidary.app import LayerConfig, DNNPool
 from lapidary.util.exceptions import NoAppConfigException
 if TYPE_CHECKING:
     from lapidary.accelerator import Accelerator
@@ -18,14 +18,14 @@ class Scheduler(ABC):
         self.env = env
         self.delay = 0
         self.task_queue: TaskQueue
-        self.app_pool: AppPool
+        self.app_pool: DNNPool
         self.accelerator: Accelerator
         self.mut_controller = simpy.Resource(self.env, capacity=1)
 
     def set_accelerator(self, accelerator: Accelerator) -> None:
         self.accelerator = accelerator
 
-    def set_app_pool(self, app_pool: AppPool) -> None:
+    def set_app_pool(self, app_pool: DNNPool) -> None:
         self.app_pool = app_pool
 
     def run(self) -> None:
@@ -116,7 +116,7 @@ class GreedyScheduler(Scheduler):
 
         return kernels
 
-    def select_app_config(self, kernel: Kernel) -> Tuple[Optional[AppConfig], List[PRR], List[Bank]]:
+    def select_app_config(self, kernel: Kernel) -> Tuple[Optional[LayerConfig], List[PRR], List[Bank]]:
         """
         TODO:
         For now, we select app_config, and hardware resources in the same function. It can be changed in the future.
@@ -132,7 +132,7 @@ class GreedyScheduler(Scheduler):
         # TODO: Implement how to choose best target app from app_pool
         # For now, we just use the first available app_config from the app_pool.
         runtime = 0
-        selected_app_config: Optional[AppConfig] = None
+        selected_app_config: Optional[LayerConfig] = None
         selected_prrs: List[PRR] = []
         selected_banks: List[Bank] = []
         for app_config in app_config_list:

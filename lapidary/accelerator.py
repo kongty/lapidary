@@ -6,7 +6,7 @@ import os
 import simpy
 from typing import TYPE_CHECKING, List, Tuple, Optional, Union, TypedDict, Generator
 from functools import reduce
-from lapidary.app import AppConfig
+from lapidary.app import LayerConfig
 from lapidary.components import ComponentStatus, NoC, PRR, Bank, OffchipInterface
 from lapidary.kernel import Kernel
 if TYPE_CHECKING:
@@ -235,7 +235,7 @@ class Accelerator:
         self._prr_available_mask = None
         self._bank_available_mask = None
 
-    def map(self, app_config: AppConfig) -> Tuple[List[PRR], List[Bank]]:
+    def map(self, app_config: LayerConfig) -> Tuple[List[PRR], List[Bank]]:
         """Return a list of available prrs where an app_config can be mapped."""
         prrs, banks = self.map_prr(app_config.prr_shape, app_config.input + app_config.output)
         return prrs, banks

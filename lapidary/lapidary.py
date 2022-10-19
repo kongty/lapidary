@@ -1,5 +1,5 @@
 import simpy
-from lapidary.app import AppPool
+from lapidary.app import DNNPool
 from lapidary.accelerator import Accelerator, AcceleratorConfigType
 from lapidary.workload import Workload
 from lapidary.scheduler import GreedyScheduler
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class Lapidary:
     def __init__(self, accelerator_config: Optional[Union[str, AcceleratorConfigType]],
-                 workload_config: Optional[Union[str, Dict]], app_pool: AppPool) -> None:
+                 workload_config: Optional[Union[str, Dict]], app_pool: DNNPool) -> None:
         # simpy environment
         self.env = simpy.Environment()
 

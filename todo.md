@@ -3,12 +3,19 @@
 - [x] Add task queue
 - [ ] Add offchip bandwidth requirement to kernel
 - [ ] Add deadline to each task
-- [ ] Change terms (app, job, task, kernel)
+- [X] Change terms (app, job, task, kernel)
 - [ ] Make `app` and `app_pool` as configuration file
 - [ ] Make it DNN specific by changing  `AppConfig` class to reflect input/kernel/output or DNN specific params
 - [ ] Implement interrupt for proc_schedule, so that it stops scheduling when new task arrives. 
 - [ ] hierarchical logger (task->kernel->instruction)
 - [ ] Convert kernel list to kernel graph
+- [ ] Take one DNN layer as input, break it down to instructions
+
+
+## Idea
+- From Maestro, generate memory and computation instructions.
+- Key idea is to generate instructions independent to 
+
 
 ## Different level of scheduling comparison
 

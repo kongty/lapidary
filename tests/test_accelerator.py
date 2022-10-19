@@ -2,7 +2,7 @@ import simpy
 import pytest
 from typing import Tuple
 from lapidary.accelerator import Accelerator
-from lapidary.app import AppConfig
+from lapidary.app import LayerConfig
 from .test_configs import accelerator_config
 
 
@@ -12,7 +12,7 @@ def test_accelerator_map(shape: Tuple[int, int]):
     accelerator = Accelerator(env, accelerator_config)
 
     height, width = shape
-    app_config = AppConfig(prr_shape=(height, width))
+    app_config = LayerConfig(prr_shape=(height, width))
     prrs = accelerator.map(app_config)
     assert len(prrs) == width * height
 

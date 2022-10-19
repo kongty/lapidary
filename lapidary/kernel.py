@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from lapidary.app import AppConfig
+from lapidary.app import LayerConfig
 from typing import TYPE_CHECKING, Tuple, List
 if TYPE_CHECKING:
     from lapidary.components import PRR, Bank
@@ -36,9 +36,9 @@ class Kernel:
         self.prrs: List[PRR] = []
         self.banks: List[Bank] = []
 
-        self.app_config: AppConfig
+        self.app_config: LayerConfig
 
-    def set_app_config(self, app_config: AppConfig) -> None:
+    def set_app_config(self, app_config: LayerConfig) -> None:
         """Set app configuration."""
         self.app_config = app_config
 

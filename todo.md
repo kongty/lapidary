@@ -10,6 +10,7 @@
 - [ ] hierarchical logger (task->kernel->instruction)
 - [ ] Convert kernel list to kernel graph
 - [ ] Take one DNN layer as input, break it down to instructions
+- [ ] See how scheduling works in full-flexible scenario with best optimization vs no-flexible with sequential scheduling
 
 
 ## Idea

@@ -42,7 +42,6 @@ if __name__ == "__main__":
                                offchip_rd_energy=30,
                                offchip_wr_energy=30)
 
-    subaccelerator = SubAccelerator(256, 2560, 100, 100)
     # subaccelerator = SubAccelerator(256, 1, 10, 100, 100, 100, True)
     cost_model = CostModel(accelerator, energy_table)
     layer_result = cost_model.run(subaccelerator, nn.layers[0], Dataflow.NVDLA)

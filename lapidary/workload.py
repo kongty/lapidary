@@ -10,13 +10,22 @@ logger = logging.getLogger(__name__)
 
 
 class Workload:
-    def __init__(self, env: simpy.Environment,  config: Optional[Union[str, Dict[str, TaskGeneratorConfigType]]] = None,
+    def __init__(self, config: Optional[Union[str, Dict[str, TaskGeneratorConfigType]]] = None,
                  task_logger: TaskLogger = None):
-        self.env = env
         self.task_logger = task_logger
         self.task_generators: List[TaskGenerator] = []
         if config is not None:
             self.set_workload(config)
+
+    def set_simulator(self, env: simpy.Environment) -> None:
+        self.env = env
+        for task_generator in self.task_generators:
+            task_generator.set_simulator(self.env)
+
+    def set_task_logger(self, task_logger: TaskLogger = None):
+        self.task_logger = task_logger
+        for task_generator in self.task_generators:
+            task_generator.set_task_logger(self.task_logger)
 
     def set_workload(self, config: Union[str, Dict[str, TaskGeneratorConfigType]]) -> None:
         """Set workload properties with input configuration file."""
@@ -33,7 +42,7 @@ class Workload:
             config_dict = config
 
         for name, task_gen_config in config_dict.items():
-            self.task_generators.append(TaskGenerator(self.env, name, task_gen_config, self.task_logger))
+            self.task_generators.append(TaskGenerator(name, task_gen_config))
 
     def run_generate(self) -> None:
         """Run generate proccess of the task_generators."""

@@ -10,7 +10,10 @@
 - [ ] hierarchical logger (task->kernel->instruction)
 - [ ] Convert kernel list to kernel graph
 - [ ] Take one DNN layer as input, break it down to instructions
+- [ ] Take one DNN layer as input, and find the best dataflow for that for each available hardware resource scenarios.
 - [ ] See how scheduling works in full-flexible scenario with best optimization vs no-flexible with sequential scheduling
+<!-- - [ ] Total partial sum / X /  - Total occurences  -->
+
 
 
 ## Idea

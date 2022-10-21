@@ -11,17 +11,29 @@ logger = logging.getLogger(__name__)
 
 
 class Lapidary:
-    def __init__(self, accelerator_config: Optional[Union[str, AcceleratorConfigType]],
-                 workload_config: Optional[Union[str, Dict]], app_pool: DNNPool) -> None:
+    def __init__(self, accelerator: Accelerator, workload: Workload, app_pool: DNNPool) -> None:
         # simpy environment
         self.env = simpy.Environment()
 
-        self.accelerator = Accelerator(self.env, accelerator_config)
-        # TODO: Get rid of num_prr argument from tasklogger
-        self.task_logger = TaskLogger(self.accelerator.config.num_prr_height * self.accelerator.config.num_prr_width)
+        self.accelerator = accelerator
+        self.workload = workload
+
         self.scheduler = GreedyScheduler(self.env)
         self.app_pool = app_pool
-        self.workload = Workload(self.env, workload_config, self.task_logger)
+
+        # task_logger
+        # TODO: Get rid of num_prr argument from tasklogger
+        self.task_logger = TaskLogger(self.accelerator.config.num_prr_height * self.accelerator.config.num_prr_width)
+
+        self.connect_inputs()
+
+    def connect_inputs(self) -> None:
+        # Set simpy to all modules
+        self.accelerator.set_simulator(self.env)
+        self.workload.set_simulator(self.env)
+
+        # Set task logger to all modules
+        self.workload.set_task_logger(self.task_logger)
 
         # Set app pool that scheduler can use
         self.scheduler.set_app_pool(self.app_pool)
@@ -32,6 +44,7 @@ class Lapidary:
         self.accelerator.set_scheduler(self.scheduler)
 
         # Set target scheduler for workload
+        # TODO: Workload does not need to know scheduler!
         self.workload.set_scheduler(self.scheduler)
 
     def run(self, until: Optional[int] = None) -> None:

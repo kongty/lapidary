@@ -16,13 +16,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class PRRConfigType(TypedDict):
-    height: int
-    width: int
-    num_input: int
-    num_output: int
-
-
 class PartitionType(Enum):
     FIXED = 1
     VARIABLE = 2
@@ -33,23 +26,19 @@ class PartitionType(Enum):
 class AcceleratorConfigType(TypedDict):
     name: str
     num_glb_banks: int
-    num_prr_height: int
-    num_prr_width: int
-    prr: PRRConfigType
+    num_cores: int
+    num_pes_per_core: int
+    noc_bw: int
+    offchip_bw: int
 
 
 class AcceleratorConfig:
     def __init__(self, config: Optional[Union[str, AcceleratorConfigType]] = None) -> None:
         self.name = 'accelerator'
         self.num_glb_banks = 32
-        self.num_prr_height = 1
-        self.num_prr_width = 8
+        self.num_cores = 8
+        self.num_pes_per_core = 64
         self.partition = PartitionType.FIXED
-
-        self.prr_height = 16
-        self.prr_width = 4
-        self.prr_num_input = 4
-        self.prr_num_output = 4
 
         if config is not None:
             self.set_config(config)
@@ -67,38 +56,22 @@ class AcceleratorConfig:
         else:
             config_dict = config
 
-        if 'name' in config_dict:
-            self.name = config_dict['name']
-        if 'num_glb_banks' in config_dict:
-            self.num_glb_banks = config_dict['num_glb_banks']
-        if 'num_prr_height' in config_dict:
-            self.num_prr_height = config_dict['num_prr_height']
-        if 'num_prr_width' in config_dict:
-            self.num_prr_width = config_dict['num_prr_width']
-        if 'partition' in config_dict:
-            if config_dict['partition'].lower() == 'fixed':
-                self.partition = PartitionType.FIXED
-            elif config_dict['partition'].lower() == 'variable':
-                self.partition = PartitionType.VARIABLE
-            elif config_dict['partition'].lower() == 'flexible':
-                self.partition = PartitionType.FLEXIBLE
-            else:
-                raise Exception(f"Partition type should be either 'fixed', 'variable', or 'flexible'")
-
-        if 'prr' in config_dict:
-            if 'height' in config_dict['prr']:
-                self.prr_height = config_dict['prr']['height']
-            if 'width' in config_dict['prr']:
-                self.prr_width = config_dict['prr']['width']
-            if 'num_input' in config_dict['prr']:
-                self.prr_num_input = config_dict['prr']['num_input']
-            if 'num_output' in config_dict['prr']:
-                self.prr_num_output = config_dict['prr']['num_output']
+        self.name = config_dict['name']
+        self.num_glb_banks = config_dict['num_glb_banks']
+        self.num_cores = config_dict['num_cores']
+        self.num_pes_per_core = config_dict['num_pes_per_core']
+        if config_dict['partition'].lower() == 'fixed':
+            self.partition = PartitionType.FIXED
+        elif config_dict['partition'].lower() == 'variable':
+            self.partition = PartitionType.VARIABLE
+        elif config_dict['partition'].lower() == 'flexible':
+            self.partition = PartitionType.FLEXIBLE
+        else:
+            raise Exception(f"Partition type should be either 'fixed', 'variable', or 'flexible'")
 
 
 class Accelerator:
-    def __init__(self, env: simpy.Environment, config: Optional[Union[str, AcceleratorConfigType]]) -> None:
-        self.env = env
+    def __init__(self, config: Optional[Union[str, AcceleratorConfigType]]) -> None:
         self.config = AcceleratorConfig(config)
         # self.execution_delay = 10
         self.offchip_interface = self._generate_offchip_interface()
@@ -111,10 +84,13 @@ class Accelerator:
             [True for _ in range(len(self.prrs[0]))] for _ in range(len(self.prrs))]
         self._bank_available_mask: Optional[List[bool]] = [True for _ in range(len(self.banks))]
 
+        self.scheduler: Scheduler
+
+    def set_simulator(self, env: simpy.Environment) -> None:
+        self.env = env
+
         # task_done event
         self.evt_kernel_done = self.env.event()
-
-        self.scheduler: Scheduler
         self.interrupt_controller = simpy.Resource(self.env, capacity=1)
 
     def set_scheduler(self, scheduler: Scheduler) -> None:

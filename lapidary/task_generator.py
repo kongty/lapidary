@@ -67,9 +67,8 @@ class TaskGeneratorDistribution:
 
 
 class TaskGenerator:
-    def __init__(self, env: simpy.Environment, name: str, config: Optional[TaskGeneratorConfigType],
+    def __init__(self, name: str, config: Optional[TaskGeneratorConfigType],
                  task_logger: TaskLogger = None) -> None:
-        self.env = env
         self.name = name
         self.dist = TaskGeneratorDistribution()
         self.kernels: Dict[str, KernelConfigType] = {}
@@ -77,6 +76,12 @@ class TaskGenerator:
             self.set_task_generator(config)
         self.task_logger = task_logger
         self.scheduler: Scheduler
+
+    def set_simulator(self, env: simpy.Environment) -> None:
+        self.env = env
+
+    def set_task_logger(self, task_logger: TaskLogger) -> None:
+        self.task_logger = task_logger
 
     def set_task_generator(self, config: TaskGeneratorConfigType) -> None:
         """Set task generator properties with input configuration file."""

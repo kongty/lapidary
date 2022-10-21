@@ -65,7 +65,8 @@ class GreedyScheduler(Scheduler):
 
         # Baseline
         # while True:
-        #     triggered = yield self.task_queue.evt_task_arrive | self.task_queue.evt_task_done | self.accelerator.evt_kernel_done
+        #     triggered = yield (self.task_queue.evt_task_arrive | self.task_queue.evt_task_done
+        #                        | self.accelerator.evt_kernel_done)
         #     if self.accelerator.evt_kernel_done in triggered:
         #         kernel, mut_kernel_done = triggered[self.accelerator.evt_kernel_done]
         #         yield self.env.process(self.task_queue.update_kernel_done(kernel=kernel))

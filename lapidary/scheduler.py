@@ -2,7 +2,7 @@ from __future__ import annotations
 import simpy
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generator, Any, List, Optional, Tuple
-from lapidary.components import PRR, Bank
+from lapidary.components import Core, Bank
 from lapidary.task_queue import TaskQueue
 from lapidary.kernel import Kernel, KernelStatus
 from lapidary.app import LayerConfig, DNNPool
@@ -94,7 +94,7 @@ class GreedyScheduler(Scheduler):
         logger.debug(f"[@ {self.env.now}] Number of tasks being scheduled: {len(kernels)}")
 
         for kernel in kernels:
-            logger.debug(f"[@ {self.env.now}] {kernel.tag} is scheduled to prr{list(map(lambda x: x.id, kernel.prrs))},"
+            logger.debug(f"[@ {self.env.now}] {kernel.tag} is scheduled to core{list(map(lambda x: x.id, kernel.cores))},"
                          f" bank {list(map(lambda x: x.id, kernel.banks))}.")
             self.task_queue.update_kernel_scheduled(kernel=kernel)
             self.accelerator.execute(kernel)
@@ -117,7 +117,7 @@ class GreedyScheduler(Scheduler):
 
         return kernels
 
-    def select_app_config(self, kernel: Kernel) -> Tuple[Optional[LayerConfig], List[PRR], List[Bank]]:
+    def select_app_config(self, kernel: Kernel) -> Tuple[Optional[LayerConfig], List[Core], List[Bank]]:
         """
         TODO:
         For now, we select app_config, and hardware resources in the same function. It can be changed in the future.
@@ -134,7 +134,7 @@ class GreedyScheduler(Scheduler):
         # For now, we just use the first available app_config from the app_pool.
         runtime = 0
         selected_app_config: Optional[LayerConfig] = None
-        selected_prrs: List[PRR] = []
+        selected_prrs: List[Core] = []
         selected_banks: List[Bank] = []
         for app_config in app_config_list:
             prrs, banks = self.accelerator.map(app_config)

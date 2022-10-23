@@ -13,7 +13,7 @@ class ComponentStatus(Enum):
 
 
 @dataclass
-class PRR:
+class Core:
     id: int = 0
     coord: Tuple[int, int] = (0, 0)
     status: ComponentStatus = ComponentStatus.idle

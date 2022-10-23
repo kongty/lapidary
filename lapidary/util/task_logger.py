@@ -81,7 +81,7 @@ class TaskLogger:
             kernel_prr_dict[f"prr{i}"] = []
         for task in self.task_list:
             for kernel in task.kernels:
-                kernel_prr_id = list(map(lambda x: x.id, kernel.prrs))
+                kernel_prr_id = list(map(lambda x: x.id, kernel.cores))
                 for i in range(self.num_prr):
                     if i in kernel_prr_id:
                         kernel_prr_dict[f"prr{i}"].append(1)

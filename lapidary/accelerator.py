@@ -7,7 +7,7 @@ import simpy
 from typing import TYPE_CHECKING, List, Tuple, Optional, Union, TypedDict, Generator
 from functools import reduce
 from lapidary.app import LayerConfig
-from lapidary.components import ComponentStatus, NoC, PRR, Bank, OffchipInterface
+from lapidary.components import ComponentStatus, NoC, Core, Bank, OffchipInterface
 from lapidary.kernel import Kernel
 if TYPE_CHECKING:
     from lapidary.scheduler import Scheduler
@@ -77,11 +77,11 @@ class Accelerator:
         self.offchip_interface = self._generate_offchip_interface()
         self.banks = self._generate_banks()
         self.noc = self._generate_noc()
-        self.prrs = self._generate_prrs()
+        self.cores = self._generate_cores()
 
         # self.prr_mask is a readonly property
-        self._prr_available_mask: Optional[List[List[bool]]] = [
-            [True for _ in range(len(self.prrs[0]))] for _ in range(len(self.prrs))]
+        self._core_available_mask: Optional[List[List[bool]]] = [
+            [True for _ in range(len(self.cores[0]))] for _ in range(len(self.cores))]
         self._bank_available_mask: Optional[List[bool]] = [True for _ in range(len(self.banks))]
 
         self.scheduler: Scheduler
@@ -97,20 +97,20 @@ class Accelerator:
         """Set a scheduler for accelerator."""
         self.scheduler = scheduler
 
-    def _generate_prrs(self) -> List[List[PRR]]:
-        """Return 2d-list of partial regions."""
-        prrs: List[List[PRR]] = [[PRR() for _ in range(self.config.num_prr_width)]
-                                 for _ in range(self.config.num_prr_height)]
+    def _generate_cores(self) -> List[List[Core]]:
+        """Return 2d-list of cores."""
+        prrs: List[List[Core]] = [[Core() for _ in range(self.config.num_prr_width)]
+                                  for _ in range(self.config.num_prr_height)]
         for y in range(self.config.num_prr_height):
             for x in range(self.config.num_prr_width):
-                prrs[y][x] = PRR(id=(y*self.config.num_prr_width + x),
-                                 coord=(x, y),
-                                 status=ComponentStatus.idle,
-                                 kernel=None,
-                                 height=self.config.prr_height,
-                                 width=self.config.prr_width,
-                                 num_input=self.config.prr_num_input,
-                                 num_output=self.config.prr_num_output)
+                prrs[y][x] = Core(id=(y*self.config.num_prr_width + x),
+                                  coord=(x, y),
+                                  status=ComponentStatus.idle,
+                                  kernel=None,
+                                  height=self.config.prr_height,
+                                  width=self.config.prr_width,
+                                  num_input=self.config.prr_num_input,
+                                  num_output=self.config.prr_num_output)
 
         return prrs
 
@@ -132,17 +132,17 @@ class Accelerator:
         return noc
 
     @property
-    def prr_available_mask(self) -> List[List[bool]]:
-        """Return a 2-D mask for available prrs."""
-        if self._prr_available_mask is None:
-            prr_mask = [[True for _ in range(len(self.prrs[0]))] for _ in range(len(self.prrs))]
-            for y in range(len(prr_mask)):
-                for x in range(len(prr_mask[0])):
-                    if self.prrs[y][x].status != ComponentStatus.idle:
-                        prr_mask[y][x] = False
-            self._prr_available_mask = prr_mask
+    def core_available_mask(self) -> List[List[bool]]:
+        """Return a 2-D mask for available cores."""
+        if self._core_available_mask is None:
+            core_mask = [[True for _ in range(len(self.cores[0]))] for _ in range(len(self.cores))]
+            for y in range(len(core_mask)):
+                for x in range(len(core_mask[0])):
+                    if self.cores[y][x].status != ComponentStatus.idle:
+                        core_mask[y][x] = False
+            self._core_available_mask = core_mask
 
-        return self._prr_available_mask
+        return self._core_available_mask
 
     @property
     def bank_available_mask(self) -> List[bool]:
@@ -170,53 +170,53 @@ class Accelerator:
         # Controller is a shared resource
         mut_kernel_done = self.scheduler.mut_controller.request()
         yield mut_kernel_done
-        self.deallocate(kernel.prrs, kernel.banks)
+        self.deallocate(kernel.cores, kernel.banks)
         self.evt_kernel_done.succeed(value=(kernel, mut_kernel_done))
 
     def acknowledge_kernel_done(self, mut_kernel_done: simpy.resources.resource.Request) -> None:
         self.scheduler.mut_controller.release(mut_kernel_done)
         self.evt_kernel_done = self.env.event()
 
-    def allocate(self, kernel: Kernel, prrs: List[PRR], banks: List[Bank]) -> None:
-        """Allocate prrs to a task."""
-        kernel.set_prrs(prrs)
+    def allocate(self, kernel: Kernel, cores: List[Core], banks: List[Bank]) -> None:
+        """Allocate cores to a task."""
+        kernel.set_cores(cores)
         kernel.set_banks(banks)
-        for prr in prrs:
-            if prr.status != ComponentStatus.idle:
-                raise Exception(f"Cannot allocate PRR_{prr.id} to {kernel.tag}. It is not idle.")
-            prr.status = ComponentStatus.used
-            prr.kernel = kernel
+        for core in cores:
+            if core.status != ComponentStatus.idle:
+                raise Exception(f"Cannot allocate Core_{core.id} to {kernel.tag}. It is not idle.")
+            core.status = ComponentStatus.used
+            core.kernel = kernel
         for bank in banks:
             if bank.status != ComponentStatus.idle:
                 raise Exception(f"Cannot allocate BANK_{bank.id} to {kernel.tag}. It is not idle.")
             bank.status = ComponentStatus.used
             bank.kernel = kernel
-        # Initialize prr_mask to None
-        self._prr_available_mask = None
+        # Initialize core_mask to None
+        self._core_available_mask = None
         self._bank_available_mask = None
 
-    def deallocate(self, prrs: List[PRR], banks: List[Bank]) -> None:
-        """Deallocate prrs."""
-        for prr in prrs:
-            if prr.status == ComponentStatus.idle:
-                raise Exception(f"Cannot deallocate PRR_{prr.id}. It is already idle.")
-            prr.status = ComponentStatus.idle
-            prr.kernel = None
+    def deallocate(self, cores: List[Core], banks: List[Bank]) -> None:
+        """Deallocate cores."""
+        for core in cores:
+            if core.status == ComponentStatus.idle:
+                raise Exception(f"Cannot deallocate PRR_{core.id}. It is already idle.")
+            core.status = ComponentStatus.idle
+            core.kernel = None
         for bank in banks:
             if bank.status == ComponentStatus.idle:
                 raise Exception(f"Cannot deallocate Bank_{bank.id}. It is already idle.")
             bank.status = ComponentStatus.idle
             bank.kernel = None
-        # Initialize prr_mask to None
-        self._prr_available_mask = None
+        # Initialize core_mask to None
+        self._core_available_mask = None
         self._bank_available_mask = None
 
-    def map(self, app_config: LayerConfig) -> Tuple[List[PRR], List[Bank]]:
+    def map(self, layer_config: LayerConfig) -> Tuple[List[Core], List[Bank]]:
         """Return a list of available prrs where an app_config can be mapped."""
-        prrs, banks = self.map_prr(app_config.prr_shape, app_config.input + app_config.output)
-        return prrs, banks
+        cores, banks = self.map_core(layer_config.core_shape, layer_config.input + layer_config.output)
+        return cores, banks
 
-    def map_prr(self, shape: Tuple[int, int], num_io: int) -> Tuple[List[PRR], List[Bank]]:
+    def map_core(self, shape: Tuple[int, int], num_io: int) -> Tuple[List[Core], List[Bank]]:
         """Return a list of prs where input shape fits in.
 
             Parameters
@@ -224,28 +224,28 @@ class Accelerator:
             shape: (height, width)
             num_io: number of inputs and outputs
         """
-        if self.config.partition == PartitionType.FULL_FLEXIBLE:
+        if self.config.partition == PartitionType.FLEXIBLE:
             height, width = shape
-            total_required_prr = height * width
+            total_required_core = height * width
             total_required_banks = num_io
             # Note: Greedy search algorithm for available prrs.
-            found_prr = False
+            found_core = False
             found_bank = False
-            prrs = []
+            cores = []
             banks = []
-            found_prrs = 0
+            found_cores = 0
             num_found_banks = 0
-            prr_available_mask = self.prr_available_mask
+            core_available_mask = self.core_available_mask
             bank_available_mask = self.bank_available_mask
             for y in range(self.config.num_prr_height):
                 for x in range(self.config.num_prr_width):
-                    if prr_available_mask[y][x]:
-                        prrs.append(self.prrs[y][x])
-                        found_prrs += 1
-                    if found_prrs >= total_required_prr:
-                        found_prr = True
+                    if core_available_mask[y][x]:
+                        cores.append(self.cores[y][x])
+                        found_cores += 1
+                    if found_cores >= total_required_core:
+                        found_core = True
                         break
-                if found_prr is True:
+                if found_core is True:
                     break
 
             for x in range(self.config.num_glb_banks):
@@ -256,28 +256,28 @@ class Accelerator:
                     found_bank = True
                     break
 
-            if found_prr is False or found_bank is False:
+            if found_core is False or found_bank is False:
                 return [], []
             else:
-                return prrs, banks
+                return cores, banks
         elif self.config.partition == PartitionType.FLEXIBLE:
             height, width = shape
-            total_required_prr = height * width
+            total_required_core = height * width
             total_required_banks = num_io
-            # Note: Greedy search algorithm for available prrs.
-            found_prr = False
-            prrs = []
-            prr_available_mask = self.prr_available_mask
+            # Note: Greedy search algorithm for available cores.
+            found_core = False
+            cores = []
+            core_available_mask = self.core_available_mask
 
             for y in range(self.config.num_prr_height - height + 1):
                 for x in range(self.config.num_prr_width - width + 1):
-                    prr_mask = np.array(prr_available_mask)[y:y+height, x:x+width]
+                    prr_mask = np.array(core_available_mask)[y:y+height, x:x+width]
                     is_available = reduce(lambda x, y: x and y, prr_mask.flatten())
                     if is_available:
-                        found_prr = True
+                        found_core = True
                         break
-                if found_prr is True:
-                    prrs = list(np.array(self.prrs)[y:y+height, x:x+width].flatten())
+                if found_core is True:
+                    cores = list(np.array(self.cores)[y:y+height, x:x+width].flatten())
                     break
 
             found_bank = False
@@ -292,10 +292,10 @@ class Accelerator:
                     found_bank = True
                     break
 
-            if found_prr is False or found_bank is False:
+            if found_core is False or found_bank is False:
                 return [], []
             else:
-                return prrs, banks
+                return cores, banks
         elif self.config.partition == PartitionType.VARIABLE:
             height, width = shape
             banks_per_prr = self.config.num_glb_banks // self.config.num_prr_width
@@ -303,23 +303,23 @@ class Accelerator:
             if num_io > width * banks_per_prr:
                 width = int(math.ceil(num_io / banks_per_prr))
             # Note: Greedy search algorithm for available prrs.
-            found_prr = False
-            prr_available_mask = self.prr_available_mask
+            found_core = False
+            core_available_mask = self.core_available_mask
             for y in range(self.config.num_prr_height - height + 1):
                 for x in range(self.config.num_prr_width - width + 1):
-                    prr_mask = np.array(prr_available_mask)[y:y+height, x:x+width]
+                    prr_mask = np.array(core_available_mask)[y:y+height, x:x+width]
                     is_available = reduce(lambda x, y: x and y, prr_mask.flatten())
                     if is_available:
-                        found_prr = True
+                        found_core = True
                         break
-                if found_prr is True:
+                if found_core is True:
                     break
 
-            if found_prr is False:
+            if found_core is False:
                 return [], []
             else:
-                prrs = list(np.array(self.prrs)[y:y+height, x:x+width].flatten())
+                cores = list(np.array(self.cores)[y:y+height, x:x+width].flatten())
                 banks = self.banks[x:x+width]
-                return prrs, banks
+                return cores, banks
         else:
             raise Exception(f"Partition type should be either 'fixed', 'variable', or 'flexible'")

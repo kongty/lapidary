@@ -15,6 +15,8 @@
 <!-- - [ ] Total partial sum / X /  - Total occurences  -->
 
 
+## Challenges
+### When there is only 
 
 ## Idea
 - From Maestro, generate memory and computation instructions.

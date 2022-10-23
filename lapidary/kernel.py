@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from lapidary.app import LayerConfig
 from typing import TYPE_CHECKING, Tuple, List
 if TYPE_CHECKING:
-    from lapidary.components import PRR, Bank
+    from lapidary.components import Core, Bank
     from lapidary.task import Task
 from enum import Enum
 import logging
@@ -33,7 +33,7 @@ class Kernel:
 
         self.timestamp = Timestamp()
 
-        self.prrs: List[PRR] = []
+        self.cores: List[Core] = []
         self.banks: List[Bank] = []
 
         self.app_config: LayerConfig
@@ -42,18 +42,18 @@ class Kernel:
         """Set app configuration."""
         self.app_config = app_config
 
-    def get_pr_shape(self) -> Tuple[int, int]:
+    def get_core_shape(self) -> Tuple[int, int]:
         """Return partial region shape."""
         if self.app_config is None:
             raise Exception(f"app configuration is not set for {self.tag}")
         else:
-            return self.app_config.prr_shape
+            return self.app_config.core_shape
 
     def update_deps(self, deps: List[str]):
         self.deps = deps
 
-    def set_prrs(self, prrs: List[PRR]) -> None:
-        self.prrs = prrs
+    def set_cores(self, cores: List[Core]) -> None:
+        self.cores = cores
 
     def set_banks(self, banks: List[Bank]) -> None:
         self.banks = banks

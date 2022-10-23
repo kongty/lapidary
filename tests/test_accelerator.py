@@ -12,7 +12,7 @@ def test_accelerator_map(shape: Tuple[int, int]):
     accelerator = Accelerator(env, accelerator_config)
 
     height, width = shape
-    app_config = LayerConfig(prr_shape=(height, width))
+    app_config = LayerConfig(core_shape=(height, width))
     prrs = accelerator.map(app_config)
     assert len(prrs) == width * height
 

@@ -26,7 +26,6 @@ jobs:
       - name: Lint with pycodestyle
         run: |
           pycodestyle ./lapidary/*.py
-          pycodestyle ./util/*.py
           pycodestyle ./tests/*.py
       - name: Lint with mypy
         run: |

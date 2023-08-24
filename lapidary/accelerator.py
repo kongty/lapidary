@@ -36,6 +36,7 @@ class AcceleratorConfigType(TypedDict):
     num_prr_height: int
     num_prr_width: int
     prr: PRRConfigType
+    partition: str
 
 
 class AcceleratorConfig:

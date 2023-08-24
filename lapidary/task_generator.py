@@ -68,7 +68,7 @@ class TaskGeneratorDistribution:
 
 class TaskGenerator:
     def __init__(self, env: simpy.Environment, name: str, config: Optional[TaskGeneratorConfigType],
-                 task_logger: TaskLogger = None) -> None:
+                 task_logger: Union[TaskLogger, None] = None) -> None:
         self.env = env
         self.name = name
         self.dist = TaskGeneratorDistribution()

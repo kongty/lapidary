@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class Workload:
     def __init__(self, env: simpy.Environment,  config: Optional[Union[str, Dict[str, TaskGeneratorConfigType]]] = None,
-                 task_logger: TaskLogger = None):
+                 task_logger: Union[TaskLogger, None] = None):
         self.env = env
         self.task_logger = task_logger
         self.task_generators: List[TaskGenerator] = []

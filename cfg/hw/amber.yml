@@ -2,8 +2,8 @@ name: amber_8x16x4
 num_glb_banks: 32
 num_prr_height: 1
 num_prr_width: 8
-offchip_bandwidth: 256
-noc_bandwidth: 256
+offchip_bandwidth: 25.6
+noc_bandwidth: 100
 partition: variable
 prr:
   height: 16

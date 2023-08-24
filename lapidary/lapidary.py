@@ -2,7 +2,7 @@ import simpy
 from lapidary.app import AppPool
 from lapidary.accelerator import Accelerator, AcceleratorConfigType
 from lapidary.workload import Workload
-from lapidary.scheduler import GreedyScheduler
+from lapidary.scheduler import FCFSScheduler
 from lapidary.util.task_logger import TaskLogger
 from typing import Optional, Union, Dict
 import os
@@ -19,7 +19,7 @@ class Lapidary:
         self.accelerator = Accelerator(self.env, accelerator_config)
         # TODO: Get rid of num_prr argument from tasklogger
         self.task_logger = TaskLogger(self.accelerator.config.num_prr_height * self.accelerator.config.num_prr_width)
-        self.scheduler = GreedyScheduler(self.env)
+        self.scheduler = FCFSScheduler(self.env)
         self.app_pool = app_pool
         self.workload = Workload(self.env, workload_config, self.task_logger)
 

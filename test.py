@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument("--log", action='store_true', help="Path to the log directory")
     args = parser.parse_args()
 
-    logging.basicConfig(format='%(levelname)s: %(message)s', stream=sys.stdout, level=logging.INFO)
+    logging.basicConfig(format='%(levelname)s: %(message)s', stream=sys.stdout, level=logging.DEBUG)
 
     app_pool = AppPool("app_pool_0")
     app_pool.add("rn_conv1", AppConfig(prr_shape=(1, 2), pe=150, mem=15, input=14, output=0, runtime=2458))

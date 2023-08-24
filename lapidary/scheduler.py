@@ -42,7 +42,7 @@ class Scheduler(ABC):
         pass
 
 
-class GreedyScheduler(Scheduler):
+class FCFSScheduler(Scheduler):
     def __init__(self, env: simpy.Environment) -> None:
         super().__init__(env)
         self.task_queue = TaskQueue(self.env, maxsize=100)

@@ -34,11 +34,11 @@ class TaskLogger:
         self.task_list.remove(task)
 
     def load_task_df(self, csv: Union[str, pathlib.Path]) -> None:
-        raise NotImplementedError("load task not implemented yet")
-        # with open(csv) as f:
-        #     # Ignore delimiter in the bracket
-        #     self.kernel_df = pd.read_csv(f, delimiter=',(?![^\[]*[\]])', engine='python')  # noqa
-        # self.kernel_df.set_index('tag', inplace=True)
+        # raise NotImplementedError("load task not implemented yet")
+        with open(csv) as f:
+            # Ignore delimiter in the bracket
+            self.kernel_df = pd.read_csv(f, delimiter=',(?![^\[]*[\]])', engine='python')  # noqa
+        self.kernel_df.set_index('tag', inplace=True)
 
     def post_process(self) -> None:
         # TODO: Need to change kernel dict and task dict. Need to decide what to store

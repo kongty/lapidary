@@ -13,7 +13,7 @@ def test_accelerator_map(shape: Tuple[int, int]):
 
     height, width = shape
     app_config = AppConfig(prr_shape=(height, width))
-    prrs = accelerator.map(app_config)
+    prrs, _ = accelerator.map(app_config)
     assert len(prrs) == width * height
 
     idx = 0

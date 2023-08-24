@@ -1,4 +1,4 @@
-from util.logger import TaskLogger
+from lapidary.util.task_logger import TaskLogger
 import tempfile
 from .test_configs import task_log
 

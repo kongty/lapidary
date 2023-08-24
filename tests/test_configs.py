@@ -2,17 +2,21 @@ from lapidary.accelerator import AcceleratorConfigType
 
 
 query_config = {
-    'dist': 'manual',
-    'dist_start': 0,
-    'dist_interval': [1, 1],
-    'tasks': {
-        'task_0': {
-            'app': 'app',
-            'dependencies': ['task_1']
-        },
-        'task_1': {
+    'dist': {
+        'type': 'stream',
+        'start': 0,
+        'interval': 100,
+        'size': 10,
+        'delay': 1
+    },
+    'kernels': {
+        'kernel_0': {
             'app': 'app',
             'dependencies': []
+        },
+        'kernel_1': {
+            'app': 'app',
+            'dependencies': ['kernel_0']
         }
     }
 }
@@ -23,6 +27,7 @@ accelerator_config = AcceleratorConfigType(
         'num_glb_banks': 32,
         'num_prr_height': 4,
         'num_prr_width': 4,
+        'partition': 'variable',
         'prr': {
             'height': 8,
             'width': 8,

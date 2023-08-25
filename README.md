@@ -12,3 +12,19 @@ Lapidary allows developers to implement their own hardware and scheduler and qui
 ## Contributors
 
 *   [Taeyoung Kong](https://github.com/kongty)
+
+
+## Citations 
+```
+@inproceedings{Lapidary_wddsa2022,
+  author    = {Taeyoung Kong,
+			   Kalhan Koul,
+			   Priyanka Raina,
+			   Mark Horowitz and,
+               Christopher Torng},
+  title     = {Hardware Abstractions and Hardware Mechanisms to Support Multi-Task Execution on Coarse-Grained Reconfigurable Arrays},
+  booktitle = {The 1st Workshop on Democratizing Domain-Specific Accelerators (WDDSA)},
+  year      = {2022},
+}
+
+```

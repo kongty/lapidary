@@ -8,6 +8,7 @@ Lapidary allows developers to implement their own hardware and scheduler and qui
 ## Quick Installation
 
 ## Usage
+`python run.py`
 
 ## Contributors
 

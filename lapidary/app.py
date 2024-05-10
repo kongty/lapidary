@@ -10,7 +10,7 @@ class AppConfig:
     mem: int = 0
     input: int = 0
     output: int = 0
-    glb_size: int = 0
+    glb: int = 0
     offchip_bw: int = 0
     runtime: int = 0
 

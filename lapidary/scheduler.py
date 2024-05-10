@@ -1,5 +1,6 @@
 from __future__ import annotations
 import simpy
+import random
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generator, Any, List, Optional, Tuple
 from lapidary.components import PRR, Bank
@@ -121,9 +122,11 @@ class FCFSScheduler(Scheduler):
         selected_app_config: Optional[AppConfig] = None
         selected_prrs: List[PRR] = []
         selected_banks: List[Bank] = []
-        for app_config in app_config_list:
+        choices = []
+        for i, app_config in enumerate(app_config_list):
             prrs, banks = self.accelerator.map(app_config)
             if len(prrs) > 0:
+                choices.append(i)
                 if runtime == 0:
                     runtime = app_config.runtime
                     selected_app_config = app_config
@@ -134,5 +137,14 @@ class FCFSScheduler(Scheduler):
                     selected_app_config = app_config
                     selected_prrs = prrs
                     selected_banks = banks
+
+        # if (len(choices) > 0):
+        #     random_choice = random.choice(choices)
+        #     app_config = app_config_list[random_choice]
+        #     prrs, banks = self.accelerator.map(app_config)
+        #     runtime = app_config.runtime
+        #     selected_app_config = app_config
+        #     selected_prrs = prrs
+        #     selected_banks = banks
 
         return selected_app_config, selected_prrs, selected_banks

@@ -1,5 +1,5 @@
 name: amber_8x16x4
-num_glb_banks: 32
+num_glb_banks: 16
 num_prr_height: 1
 num_prr_width: 8
 offchip_bandwidth: 25.6

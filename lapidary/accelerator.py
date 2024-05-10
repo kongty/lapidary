@@ -83,6 +83,8 @@ class AcceleratorConfig:
                 self.partition = PartitionType.VARIABLE
             elif config_dict['partition'].lower() == 'flexible':
                 self.partition = PartitionType.FLEXIBLE
+            elif config_dict['partition'].lower() == 'full_flexible':
+                self.partition = PartitionType.FULL_FLEXIBLE
             else:
                 raise Exception(f"Partition type should be either 'fixed', 'variable', or 'flexible'")
 
@@ -238,7 +240,8 @@ class Accelerator:
 
     def map(self, app_config: AppConfig) -> Tuple[List[PRR], List[Bank]]:
         """Return a list of available prrs where an app_config can be mapped."""
-        prrs, banks = self.map_prr(app_config.prr_shape, app_config.input + app_config.output)
+        # prrs, banks = self.map_prr(app_config.prr_shape, app_config.input + app_config.output)
+        prrs, banks = self.map_prr(app_config.prr_shape, app_config.glb)
         return prrs, banks
 
     def map_prr(self, shape: Tuple[int, int], num_io: int) -> Tuple[List[PRR], List[Bank]]:

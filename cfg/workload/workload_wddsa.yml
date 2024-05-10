@@ -1,69 +1,344 @@
 resnet:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 3000
-  dist_size: 20
-  tasks:
-    conv1:
-      app: "rn_conv1"
-      dependencies: []
-    conv2:
+  dist:
+    type: "poisson" # manual or fixed or poisson or stream
+    start: 0 # Can be random number in a range
+    lambda: 13000
+    size: 50
+    delay: 1
+  kernels:
+    # conv1:
+    #   app: "rn_conv1"
+    #   dependencies: []
+    conv2_1:
       app: "rn_conv2"
-      dependencies: [conv1]
-    conv3:
+      dependencies: []
+    conv2_2:
+      app: "rn_conv2"
+      dependencies: [conv2_1]
+    conv2_3:
+      app: "rn_conv2"
+      dependencies: [conv2_2]
+    conv2_4:
+      app: "rn_conv2"
+      dependencies: [conv2_3]
+    conv3_1:
       app: "rn_conv3"
-      dependencies: [conv2]
-    conv4:
+      dependencies: [conv2_4]
+    conv3_2:
+      app: "rn_conv3"
+      dependencies: [conv3_1]
+    conv3_3:
+      app: "rn_conv3"
+      dependencies: [conv3_2]
+    conv3_4:
+      app: "rn_conv3"
+      dependencies: [conv3_3]
+    conv4_1:
       app: "rn_conv4"
-      dependencies: [conv3]
-    conv5:
+      dependencies: [conv3_4]
+    conv4_2:
+      app: "rn_conv4"
+      dependencies: [conv4_1]
+    conv4_3:
+      app: "rn_conv4"
+      dependencies: [conv4_2]
+    conv4_4:
+      app: "rn_conv4"
+      dependencies: [conv4_3]
+    conv5_1:
       app: "rn_conv5"
-      dependencies: [conv4]
+      dependencies: [conv4_4]
+    conv5_2:
+      app: "rn_conv5"
+      dependencies: [conv5_1]
+    conv5_3:
+      app: "rn_conv5"
+      dependencies: [conv5_2]
+    conv5_4:
+      app: "rn_conv5"
+      dependencies: [conv5_3]
+
+resnet2:
+  dist:
+    type: "poisson" # manual or fixed or poisson or stream
+    start: 0 # Can be random number in a range
+    lambda: 10000
+    size: 50
+    delay: 1
+  kernels:
+    # conv1:
+    #   app: "rn_conv1"
+    #   dependencies: []
+    conv2_1:
+      app: "rn_conv2"
+      dependencies: []
+    conv2_2:
+      app: "rn_conv2"
+      dependencies: [conv2_1]
+    conv2_3:
+      app: "rn_conv2"
+      dependencies: [conv2_2]
+    conv2_4:
+      app: "rn_conv2"
+      dependencies: [conv2_3]
+    conv3_1:
+      app: "rn_conv3"
+      dependencies: [conv2_4]
+    conv3_2:
+      app: "rn_conv3"
+      dependencies: [conv3_1]
+    conv3_3:
+      app: "rn_conv3"
+      dependencies: [conv3_2]
+    conv3_4:
+      app: "rn_conv3"
+      dependencies: [conv3_3]
+    conv4_1:
+      app: "rn_conv4"
+      dependencies: [conv3_4]
+    conv4_2:
+      app: "rn_conv4"
+      dependencies: [conv4_1]
+    conv4_3:
+      app: "rn_conv4"
+      dependencies: [conv4_2]
+    conv4_4:
+      app: "rn_conv4"
+      dependencies: [conv4_3]
+    conv5_1:
+      app: "rn_conv5"
+      dependencies: [conv4_4]
+    conv5_2:
+      app: "rn_conv5"
+      dependencies: [conv5_1]
+    conv5_3:
+      app: "rn_conv5"
+      dependencies: [conv5_2]
+    conv5_4:
+      app: "rn_conv5"
+      dependencies: [conv5_3]
+
+        # resnet3:
+        #   dist:
+        #     type: "poisson" # manual or fixed or poisson or stream
+        #     start: 0 # Can be random number in a range
+        #     lambda: 13000
+        #     size: 50
+        #     delay: 1
+        #   kernels:
+        #     # conv1:
+        #     #   app: "rn_conv1"
+        #     #   dependencies: []
+        #     conv2_1:
+        #       app: "rn_conv2"
+        #       dependencies: []
+        #     conv2_2:
+        #       app: "rn_conv2"
+        #       dependencies: [conv2_1]
+        #     conv2_3:
+        #       app: "rn_conv2"
+        #       dependencies: [conv2_2]
+        #     conv2_4:
+        #       app: "rn_conv2"
+        #       dependencies: [conv2_3]
+        #     conv3_1:
+        #       app: "rn_conv3"
+        #       dependencies: [conv2_4]
+        #     conv3_2:
+        #       app: "rn_conv3"
+        #       dependencies: [conv3_1]
+        #     conv3_3:
+        #       app: "rn_conv3"
+        #       dependencies: [conv3_2]
+        #     conv3_4:
+        #       app: "rn_conv3"
+        #       dependencies: [conv3_3]
+        #     conv4_1:
+        #       app: "rn_conv4"
+        #       dependencies: [conv3_4]
+        #     conv4_2:
+        #       app: "rn_conv4"
+        #       dependencies: [conv4_1]
+        #     conv4_3:
+        #       app: "rn_conv4"
+        #       dependencies: [conv4_2]
+        #     conv4_4:
+        #       app: "rn_conv4"
+        #       dependencies: [conv4_3]
+        #     conv5_1:
+        #       app: "rn_conv5"
+        #       dependencies: [conv4_4]
+        #     conv5_2:
+        #       app: "rn_conv5"
+        #       dependencies: [conv5_1]
+        #     conv5_3:
+        #       app: "rn_conv5"
+        #       dependencies: [conv5_2]
+        #     conv5_4:
+        #       app: "rn_conv5"
+        #       dependencies: [conv5_3]
 
 mobilenet:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 2000
-  dist_size: 20
-  tasks:
-    conv1:
-      app: "mn_conv1"
+  dist:
+    type: "poisson" # manual or fixed or poisson or stream
+    start: 0 # Can be random number in a range
+    lambda: 5000
+    size: 50
+    delay: 1
+  kernels:
+    conv2_1:
+      app: "mn_conv2_pw"
       dependencies: []
-    conv2:
-      app: "mn_conv2"
-      dependencies: [conv1]
-    conv3:
-      app: "mn_conv3"
-      dependencies: [conv2]
-    conv4:
-      app: "mn_conv4"
-      dependencies: [conv3]
-    conv5:
-      app: "mn_conv5"
-      dependencies: [conv4]
-    conv6:
-      app: "mn_conv6"
-      dependencies: [conv5]
-    conv7:
-      app: "mn_conv7"
-      dependencies: [conv6]
-
-cp:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 400
-  dist_size: 100
-  tasks:
-    cp:
-      app: "cp"
-      dependencies: []
-
-harris:
-  dist: "poisson" # manual or fixed or poisson or stream
-  dist_start: 0 # Can be random number in a range
-  dist_lambda: 200
-  dist_size: 200
-  tasks:
-    harris:
-      app: "harris"
-      dependencies: []
+    conv2_2:
+      app: "mn_conv2_dw"
+      dependencies: [conv2_1]
+    conv2_3:
+      app: "mn_conv2_pw2"
+      dependencies: [conv2_2]
+    conv3_1:
+      app: "mn_conv3_pw"
+      dependencies: [conv2_3]
+    conv3_2:
+      app: "mn_conv3_dw"
+      dependencies: [conv3_1]
+    conv3_3:
+      app: "mn_conv3_pw2"
+      dependencies: [conv3_2]
+    conv4_1:
+      app: "mn_conv4_pw"
+      dependencies: [conv3_3]
+    conv4_2:
+      app: "mn_conv4_dw"
+      dependencies: [conv4_1]
+    conv4_3:
+      app: "mn_conv4_pw2"
+      dependencies: [conv4_2]
+    conv5_1:
+      app: "mn_conv5_pw"
+      dependencies: [conv4_3]
+    conv5_2:
+      app: "mn_conv5_dw"
+      dependencies: [conv5_1]
+    conv5_3:
+      app: "mn_conv5_pw2"
+      dependencies: [conv5_2]
+    conv6_1:
+      app: "mn_conv6_pw"
+      dependencies: [conv5_3]
+    conv6_2:
+      app: "mn_conv6_dw"
+      dependencies: [conv6_1]
+    conv6_3:
+      app: "mn_conv6_pw2"
+      dependencies: [conv6_2]
+    conv7_1:
+      app: "mn_conv7_pw"
+      dependencies: [conv6_3]
+    conv7_2:
+      app: "mn_conv7_dw"
+      dependencies: [conv7_1]
+    conv7_3:
+      app: "mn_conv7_pw2"
+      dependencies: [conv7_2]
+    conv8_1:
+      app: "mn_conv8_pw"
+      dependencies: [conv7_3]
+    conv8_2:
+      app: "mn_conv8_dw"
+      dependencies: [conv8_1]
+    conv8_3:
+      app: "mn_conv8_pw2"
+      dependencies: [conv8_2]
+    conv9_1:
+      app: "mn_conv9_pw"
+      dependencies: [conv8_3]
+    conv9_2:
+      app: "mn_conv9_dw"
+      dependencies: [conv9_1]
+    conv9_3:
+      app: "mn_conv9_pw2"
+      dependencies: [conv9_2]
+        # conv10_1:
+        #   app: "mn_conv10_pw"
+        #   dependencies: [conv9_3]
+        # conv10_2:
+        #   app: "mn_conv10_dw"
+        #   dependencies: [conv10_1]
+        # conv10_3:
+        #   app: "mn_conv10_pw2"
+        #   dependencies: [conv10_2]
+        # conv11_1:
+        #   app: "mn_conv11_pw"
+        #   dependencies: [conv10_3]
+        # conv11_2:
+        #   app: "mn_conv11_dw"
+        #   dependencies: [conv11_1]
+        # conv11_3:
+        #   app: "mn_conv11_pw2"
+        #   dependencies: [conv11_2]
+        # conv12_1:
+        #   app: "mn_conv12_pw"
+        #   dependencies: [conv11_3]
+        # conv12_2:
+        #   app: "mn_conv12_dw"
+        #   dependencies: [conv12_1]
+        # conv12_3:
+        #   app: "mn_conv12_pw2"
+        #   dependencies: [conv12_2]
+        #  conv13_1:
+        #    app: "mn_conv13_pw"
+        #    dependencies: [conv12_3]
+        #  conv13_2:
+        #    app: "mn_conv13_dw"
+        #    dependencies: [conv13_1]
+        #  conv13_3:
+        #    app: "mn_conv13_pw2"
+        #    dependencies: [conv13_2]
+        #  conv14_1:
+        #    app: "mn_conv14_pw"
+        #    dependencies: [conv13_3]
+        #  conv14_2:
+        #    app: "mn_conv14_dw"
+        #    dependencies: [conv14_1]
+        #  conv14_3:
+        #    app: "mn_conv14_pw2"
+        #    dependencies: [conv14_2]
+        #  conv15_1:
+        #    app: "mn_conv15_pw"
+        #    dependencies: [conv14_3]
+        #  conv15_2:
+        #    app: "mn_conv15_dw"
+        #    dependencies: [conv15_1]
+        #  conv15_3:
+        #    app: "mn_conv15_pw2"
+        #    dependencies: [conv15_2]
+        #  conv16_1:
+        #    app: "mn_conv16_pw"
+        #    dependencies: [conv15_3]
+        #  conv16_2:
+        #    app: "mn_conv16_dw"
+        #    dependencies: [conv16_1]
+        #  conv16_3:
+        #    app: "mn_conv16_pw2"
+        #    dependencies: [conv16_2]
+        #  conv17_1:
+        #    app: "mn_conv17_pw"
+        #    dependencies: [conv16_3]
+        #  conv17_2:
+        #    app: "mn_conv17_dw"
+        #    dependencies: [conv17_1]
+        #  conv17_3:
+        #    app: "mn_conv17_pw2"
+        #    dependencies: [conv17_2]
+        # cp:
+        #   dist:
+        #     type: "poisson" # manual or fixed or poisson or stream
+        #     start: 0 # Can be random number in a range
+        #     lambda: 400
+        #     size: 200
+        #     delay: 1
+        #   kernels:
+        #     cp:
+        #       app: "cp"
+        #       dependencies: []
+        # 

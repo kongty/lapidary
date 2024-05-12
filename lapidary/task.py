@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 class Timestamp:
     generate: int = 0
     queue: int = 0
+    schedule: int = 0
     done: int = 0
 
 

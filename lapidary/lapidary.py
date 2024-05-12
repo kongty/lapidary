@@ -18,7 +18,7 @@ class Lapidary:
 
         self.accelerator = Accelerator(self.env, accelerator_config)
         # TODO: Get rid of num_prr argument from tasklogger
-        self.task_logger = TaskLogger(self.accelerator.config.num_prr_height * self.accelerator.config.num_prr_width)
+        self.task_logger = TaskLogger(self.accelerator.config.num_prr_height * self.accelerator.config.num_prr_width, self.accelerator.config.num_glb_banks)
         self.scheduler = FCFSScheduler(self.env)
         self.app_pool = app_pool
         self.workload = Workload(self.env, workload_config, self.task_logger)
@@ -53,6 +53,6 @@ class Lapidary:
 
         logger.info(f"Tail latency: {self.task_logger.tail_latency}")
         logger.info(f"Average latency: {self.task_logger.latency}")
-        # logger.info(f"ANTT: {self.task_logger.antt}")
-        # logger.info(f"STP: {self.task_logger.stp}")
+        logger.info(f"ANTT: {self.task_logger.antt}")
+        logger.info(f"STP: {self.task_logger.stp}")
         # logger.info(f"Total utilization: {self.task_logger.utilization}")

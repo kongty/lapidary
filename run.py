@@ -12,32 +12,30 @@ if __name__ == "__main__":
     parser.add_argument("--arch", type=str, default="./cfg/hw/amber.yml", help="Path to the architecture config file")
     parser.add_argument("--workload", type=str, default="./cfg/workload/workload_wddsa.yml",
                         help="Path to the workload config file")
-    # parser.add_argument("--workload", type=str, default="./cfg/workload/workload_1.yml",
-    #                     help="Path to the workload config file")
     parser.add_argument("--log", action='store_true', help="Path to the log directory")
     args = parser.parse_args()
 
     logging.basicConfig(format='%(levelname)s: %(message)s', stream=sys.stdout, level=logging.INFO)
 
     app_pool = AppPool("app_pool_0")
-    app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 1), glb=2,  runtime=8508))
-    app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 2), glb=6,  runtime=2127))
-    app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 4), glb=8,  runtime=1064))
+    app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 1), glb=2,  runtime=9508))
+    app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 2), glb=3,  runtime=2127))
+    # app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 4), glb=8,  runtime=1064))
     app_pool.add("rn_conv2", AppConfig(prr_shape=(1, 6), glb=8,  runtime=532))
 
-    app_pool.add("rn_conv3", AppConfig(prr_shape=(1, 1), glb=2,  runtime=8730))
-    app_pool.add("rn_conv3", AppConfig(prr_shape=(1, 2), glb=6,  runtime=2182))
-    app_pool.add("rn_conv3", AppConfig(prr_shape=(1, 4), glb=8,  runtime=1091))
+    app_pool.add("rn_conv3", AppConfig(prr_shape=(1, 1), glb=2,  runtime=9730))
+    app_pool.add("rn_conv3", AppConfig(prr_shape=(1, 2), glb=3,  runtime=2182))
+    # app_pool.add("rn_conv3", AppConfig(prr_shape=(1, 4), glb=8,  runtime=1091))
     app_pool.add("rn_conv3", AppConfig(prr_shape=(1, 6), glb=8,  runtime=546))
 
     app_pool.add("rn_conv4", AppConfig(prr_shape=(1, 1), glb=2,  runtime=8501))
     app_pool.add("rn_conv4", AppConfig(prr_shape=(1, 2), glb=6,  runtime=2125))
-    app_pool.add("rn_conv4", AppConfig(prr_shape=(1, 4), glb=8,  runtime=1063))
+    # app_pool.add("rn_conv4", AppConfig(prr_shape=(1, 4), glb=8,  runtime=1063))
     app_pool.add("rn_conv4", AppConfig(prr_shape=(1, 6), glb=8,  runtime=531))
 
     app_pool.add("rn_conv5", AppConfig(prr_shape=(1, 1), glb=2,  runtime=10904))
     app_pool.add("rn_conv5", AppConfig(prr_shape=(1, 2), glb=6,  runtime=2726))
-    app_pool.add("rn_conv5", AppConfig(prr_shape=(1, 4), glb=8,  runtime=1363))
+    # app_pool.add("rn_conv5", AppConfig(prr_shape=(1, 4), glb=8,  runtime=1363))
     app_pool.add("rn_conv5", AppConfig(prr_shape=(1, 6), glb=8,  runtime=682))
 
 

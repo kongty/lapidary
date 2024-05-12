@@ -2,7 +2,8 @@ resnet:
   dist:
     type: "poisson" # manual or fixed or poisson or stream
     start: 0 # Can be random number in a range
-    lambda: 13000
+      # lambda: 50000
+    lambda: 10000
     size: 50
     delay: 1
   kernels:
@@ -62,7 +63,8 @@ resnet2:
   dist:
     type: "poisson" # manual or fixed or poisson or stream
     start: 0 # Can be random number in a range
-    lambda: 10000
+      # lambda: 20000
+    lambda: 20000
     size: 50
     delay: 1
   kernels:
@@ -118,71 +120,12 @@ resnet2:
       app: "rn_conv5"
       dependencies: [conv5_3]
 
-        # resnet3:
-        #   dist:
-        #     type: "poisson" # manual or fixed or poisson or stream
-        #     start: 0 # Can be random number in a range
-        #     lambda: 13000
-        #     size: 50
-        #     delay: 1
-        #   kernels:
-        #     # conv1:
-        #     #   app: "rn_conv1"
-        #     #   dependencies: []
-        #     conv2_1:
-        #       app: "rn_conv2"
-        #       dependencies: []
-        #     conv2_2:
-        #       app: "rn_conv2"
-        #       dependencies: [conv2_1]
-        #     conv2_3:
-        #       app: "rn_conv2"
-        #       dependencies: [conv2_2]
-        #     conv2_4:
-        #       app: "rn_conv2"
-        #       dependencies: [conv2_3]
-        #     conv3_1:
-        #       app: "rn_conv3"
-        #       dependencies: [conv2_4]
-        #     conv3_2:
-        #       app: "rn_conv3"
-        #       dependencies: [conv3_1]
-        #     conv3_3:
-        #       app: "rn_conv3"
-        #       dependencies: [conv3_2]
-        #     conv3_4:
-        #       app: "rn_conv3"
-        #       dependencies: [conv3_3]
-        #     conv4_1:
-        #       app: "rn_conv4"
-        #       dependencies: [conv3_4]
-        #     conv4_2:
-        #       app: "rn_conv4"
-        #       dependencies: [conv4_1]
-        #     conv4_3:
-        #       app: "rn_conv4"
-        #       dependencies: [conv4_2]
-        #     conv4_4:
-        #       app: "rn_conv4"
-        #       dependencies: [conv4_3]
-        #     conv5_1:
-        #       app: "rn_conv5"
-        #       dependencies: [conv4_4]
-        #     conv5_2:
-        #       app: "rn_conv5"
-        #       dependencies: [conv5_1]
-        #     conv5_3:
-        #       app: "rn_conv5"
-        #       dependencies: [conv5_2]
-        #     conv5_4:
-        #       app: "rn_conv5"
-        #       dependencies: [conv5_3]
-
 mobilenet:
   dist:
     type: "poisson" # manual or fixed or poisson or stream
     start: 0 # Can be random number in a range
-    lambda: 5000
+      # lambda: 30000
+    lambda: 30000
     size: 50
     delay: 1
   kernels:

@@ -62,6 +62,7 @@ class TaskQueue:
     def update_kernel_scheduled(self, kernel: Kernel) -> None:
         # timestamp update
         kernel.timestamp.schedule = int(self.env.now)
+        kernel.task.timestamp.schedule = min(int(self.env.now), kernel.task.timestamp.schedule)
         # kernel status update
         kernel.status = KernelStatus.RUNNING
         # task next kernel_idx update
